@@ -7,6 +7,7 @@ class BLEBridge: RCTEventEmitter {
 
     static let didFoundDeviceEvent = "didFoundDevice"
     static let bleErrorEvent = "bleError"
+
     private var isObserving = false
     private var bleManager: BLEManager?
 
@@ -20,31 +21,35 @@ class BLEBridge: RCTEventEmitter {
     private func setupCallbacks() {
         bleManager?.onDeviceDiscovered = { [weak self] data in
             guard let self = self, self.isObserving else { return }
-            
-            let formattedTemperature = data.temperature.map { Float(round(10 * $0) / 10) }
-            let formattedHumidity = data.humidity
-            let formattedBattery = data.battery
+
+            let temperature = data.temperature.map { $0.rounded(toPlaces: 1) }
+            let humidity = data.humidity
+            let battery = data.battery
+
+            let deviceInfo: [String: Any] = [
+                "name": data.name,
+                "temperature": temperature.map { String(format: "%.1f", $0) } ?? NSNull(),
+                "humidity": humidity ?? NSNull(),
+                "battery": battery ?? NSNull()
+            ]
 
             Log.message("""
                 Discovered device:
                 Name: \(data.name)
-                Temp: \(formattedTemperature.map { String(format: "%.1f", $0) } ?? "N/A") °C
-                Humidity: \(formattedHumidity.map { "\($0)" } ?? "N/A") %
-                Battery: \(formattedBattery.map { "\($0)" } ?? "N/A") %
+                Temp: \(temperature.map { String(format: "%.1f", $0) } ?? "N/A") °C
+                Humidity: \(humidity.map { "\($0)" } ?? "N/A") %
+                Battery: \(battery.map { "\($0)" } ?? "N/A") %
             """, level: .debug, category: "BLEBridge")
-            
-            self.sendEvent(withName: Self.didFoundDeviceEvent, body: [
-                "name": data.name,
-                "temperature": data.temperature ?? NSNull(),
-                "humidity": data.humidity ?? NSNull(),
-                "battery": data.battery ?? NSNull()
-            ] as [String: Any])
+
+            self.sendEvent(withName: Self.didFoundDeviceEvent, body: deviceInfo)
         }
     }
 
+    // MARK: - Public Methods (Called from JS)
+
     @objc
     func startScan() {
-      Log.message("Native startScan called", level: .info, category: "BLEBridge")
+        Log.message("Native startScan called", level: .info, category: "BLEBridge")
         bleManager?.startScan()
     }
 
@@ -54,12 +59,14 @@ class BLEBridge: RCTEventEmitter {
         bleManager?.stopScan()
     }
 
+    // MARK: - RCTEventEmitter Overrides
+
     override func supportedEvents() -> [String]! {
-        return [Self.didFoundDeviceEvent, Self.bleErrorEvent]
+        [Self.didFoundDeviceEvent, Self.bleErrorEvent]
     }
 
     override static func requiresMainQueueSetup() -> Bool {
-        return true
+        true
     }
 
     override func startObserving() {
@@ -70,5 +77,14 @@ class BLEBridge: RCTEventEmitter {
     override func stopObserving() {
         Log.message("JS stopped observing BLE events", level: .debug, category: "BLEBridge")
         isObserving = false
+    }
+}
+
+// MARK: - Float Extension (Helper)
+
+private extension Float {
+    func rounded(toPlaces places: Int) -> Float {
+        let divisor = pow(10.0, Float(places))
+        return (self * divisor).rounded() / divisor
     }
 }
