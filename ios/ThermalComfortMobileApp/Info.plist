@@ -24,9 +24,21 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+  <!-- 蓝牙权限描述（iOS 13 及以上必填） -->
+  <key>NSBluetoothAlwaysUsageDescription</key>
+  <string>This framework needs Bluetooth access to scan for BLE devices.</string>
+
+  <!-- 蓝牙 Peripheral 使用描述（iOS 12 或以下兼容） -->
+  <key>NSBluetoothPeripheralUsageDescription</key>
+  <string>This framework uses Bluetooth to connect to BLE devices.</string>
+
+  <!-- 支持后台蓝牙通信 -->
+  <key>UIBackgroundModes</key>
+  <array>
+      <string>bluetooth-central</string>
+  </array>
 	<key>NSAppTransportSecurity</key>
 	<dict>
-	  <!-- Do not change NSAllowsArbitraryLoads to true, or you will risk app rejection! -->
 		<key>NSAllowsArbitraryLoads</key>
 		<false/>
 		<key>NSAllowsLocalNetworking</key>

@@ -17,6 +17,9 @@ end
 target 'ThermalComfortMobileApp' do
   config = use_native_modules!
 
+  # 确保 Swift 桥接支持
+  $RNFirebaseAsStaticFramework = true
+
   use_react_native!(
     :path => config[:reactNativePath],
     # An absolute path to your application root.
