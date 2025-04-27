@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleIdentifier</key>
+    <string>com.wanling.BLEFramework</string>
+
+    <!-- 蓝牙权限描述（iOS 13 及以上必填） -->
+    <key>NSBluetoothAlwaysUsageDescription</key>
+    <string>This framework needs Bluetooth access to scan for BLE devices.</string>
+
+    <!-- 蓝牙 Peripheral 使用描述（iOS 12 或以下兼容） -->
+    <key>NSBluetoothPeripheralUsageDescription</key>
+    <string>This framework uses Bluetooth to connect to BLE devices.</string>
+
+    <!-- 支持后台蓝牙通信 -->
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>bluetooth-central</string>
+    </array>
+    
+    <key>CFBundleExecutable</key>
+    <string>$(EXECUTABLE_NAME)</string>
+</dict>
+</plist>
+
