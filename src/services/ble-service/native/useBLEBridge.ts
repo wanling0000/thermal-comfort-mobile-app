@@ -23,7 +23,11 @@ export function useBLEBridge() {
 
         const deviceListener = eventEmitter.addListener('didFoundDevice', (data) => {
             console.log('[BLEBridge - deviceListener] Received device:', data);
-            setSensorDataList((prev) => [...prev, data]);
+            const formattedData = {
+                ...data,
+                temperature: typeof data.temperature === 'string' ? parseFloat(data.temperature) : null,
+            };
+            setSensorDataList((prev) => [...prev, formattedData]);
         });
 
         const errorListener = eventEmitter.addListener('bleError', (error) => {
