@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 70;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -14,28 +14,28 @@
 		959DF70D31995497C8DEF0AA /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
 		EB7293882DBCE11200FFAB34 /* BLEBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB7293852DBCE11200FFAB34 /* BLEBridge.swift */; };
 		EB7293892DBCE11200FFAB34 /* BLEBridgeBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = EB7293862DBCE11200FFAB34 /* BLEBridgeBridge.m */; };
-		EB8309AC2DBC2E8700589455 /* BLEFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB8309A92DBC2E6800589455 /* BLEFramework.framework */; };
-		EB8309AD2DBC2E8700589455 /* BLEFramework.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = EB8309A92DBC2E6800589455 /* BLEFramework.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		EB7BF7882DBF913000D0E120 /* BLEFramework.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = EB8FFA552DBE6A450039D27D /* BLEFramework.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		EB7BF78C2DBF914A00D0E120 /* BLEFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB8FFA552DBE6A450039D27D /* BLEFramework.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		EB7293772DBCDF8400FFAB34 /* PBXContainerItemProxy */ = {
+		EB7BF78A2DBF914200D0E120 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = EB8309992DBC2E6800589455 /* BLEFramework.xcodeproj */;
+			containerPortal = EB8FFA432DBE6A450039D27D /* BLEFramework.xcodeproj */;
 			proxyType = 1;
 			remoteGlobalIDString = EB033DDE2DBADD600091738E;
 			remoteInfo = BLEFramework;
 		};
-		EB8309A82DBC2E6800589455 /* PBXContainerItemProxy */ = {
+		EB8FFA542DBE6A450039D27D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = EB8309992DBC2E6800589455 /* BLEFramework.xcodeproj */;
+			containerPortal = EB8FFA432DBE6A450039D27D /* BLEFramework.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = EB033DDF2DBADD600091738E;
 			remoteInfo = BLEFramework;
 		};
-		EB8309AA2DBC2E6800589455 /* PBXContainerItemProxy */ = {
+		EB8FFA562DBE6A450039D27D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = EB8309992DBC2E6800589455 /* BLEFramework.xcodeproj */;
+			containerPortal = EB8FFA432DBE6A450039D27D /* BLEFramework.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = EB033DEA2DBADD600091738E;
 			remoteInfo = BLEFrameworkTests;
@@ -43,13 +43,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		EB8309AE2DBC2E8800589455 /* Embed Frameworks */ = {
+		EB7BF7892DBF913000D0E120 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				EB8309AD2DBC2E8700589455 /* BLEFramework.framework in Embed Frameworks */,
+				EB7BF7882DBF913000D0E120 /* BLEFramework.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -69,12 +69,16 @@
 		EB7293852DBCE11200FFAB34 /* BLEBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEBridge.swift; sourceTree = "<group>"; };
 		EB7293862DBCE11200FFAB34 /* BLEBridgeBridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BLEBridgeBridge.m; sourceTree = "<group>"; };
 		EB7293872DBCE11200FFAB34 /* ThermalComfortMobileApp-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ThermalComfortMobileApp-Bridging-Header.h"; sourceTree = "<group>"; };
-		EB8309992DBC2E6800589455 /* BLEFramework.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = BLEFramework.xcodeproj; path = BLEFramework/BLEFramework.xcodeproj; sourceTree = "<group>"; };
+		EB8FFA432DBE6A450039D27D /* BLEFramework.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = BLEFramework.xcodeproj; path = /Users/fwl/coding/XcodeWorkSpace/BLEFramework/BLEFramework.xcodeproj; sourceTree = "<absolute>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		EB7293982DBD799200FFAB34 /* Utilities */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Utilities; sourceTree = "<group>"; };
+		EB7293982DBD799200FFAB34 /* Utilities */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Utilities;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -82,8 +86,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EB7BF78C2DBF914A00D0E120 /* BLEFramework.framework in Frameworks */,
 				0C80B921A6F3F58F76C31292 /* libPods-ThermalComfortMobileApp.a in Frameworks */,
-				EB8309AC2DBC2E8700589455 /* BLEFramework.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -125,7 +129,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				EB8309992DBC2E6800589455 /* BLEFramework.xcodeproj */,
+				EB8FFA432DBE6A450039D27D /* BLEFramework.xcodeproj */,
 				13B07FAE1A68108700A75B9A /* ThermalComfortMobileApp */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
@@ -154,11 +158,11 @@
 			path = Pods;
 			sourceTree = "<group>";
 		};
-		EB83099A2DBC2E6800589455 /* Products */ = {
+		EB8FFA502DBE6A450039D27D /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				EB8309A92DBC2E6800589455 /* BLEFramework.framework */,
-				EB8309AB2DBC2E6800589455 /* BLEFrameworkTests.xctest */,
+				EB8FFA552DBE6A450039D27D /* BLEFramework.framework */,
+				EB8FFA572DBE6A450039D27D /* BLEFrameworkTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -177,12 +181,12 @@
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				00EEFC60759A1932668264C0 /* [CP] Embed Pods Frameworks */,
 				E235C05ADACE081382539298 /* [CP] Copy Pods Resources */,
-				EB8309AE2DBC2E8800589455 /* Embed Frameworks */,
+				EB7BF7892DBF913000D0E120 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				EB7293782DBCDF8400FFAB34 /* PBXTargetDependency */,
+				EB7BF78B2DBF914200D0E120 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				EB7293982DBD799200FFAB34 /* Utilities */,
@@ -206,7 +210,6 @@
 				};
 			};
 			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "ThermalComfortMobileApp" */;
-			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -214,12 +217,13 @@
 				Base,
 			);
 			mainGroup = 83CBB9F61A601CBA00E9B192;
+			preferredProjectObjectVersion = 77;
 			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = EB83099A2DBC2E6800589455 /* Products */;
-					ProjectRef = EB8309992DBC2E6800589455 /* BLEFramework.xcodeproj */;
+					ProductGroup = EB8FFA502DBE6A450039D27D /* Products */;
+					ProjectRef = EB8FFA432DBE6A450039D27D /* BLEFramework.xcodeproj */;
 				},
 			);
 			projectRoot = "";
@@ -230,18 +234,18 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		EB8309A92DBC2E6800589455 /* BLEFramework.framework */ = {
+		EB8FFA552DBE6A450039D27D /* BLEFramework.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
 			path = BLEFramework.framework;
-			remoteRef = EB8309A82DBC2E6800589455 /* PBXContainerItemProxy */;
+			remoteRef = EB8FFA542DBE6A450039D27D /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		EB8309AB2DBC2E6800589455 /* BLEFrameworkTests.xctest */ = {
+		EB8FFA572DBE6A450039D27D /* BLEFrameworkTests.xctest */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.cfbundle;
 			path = BLEFrameworkTests.xctest;
-			remoteRef = EB8309AA2DBC2E6800589455 /* PBXContainerItemProxy */;
+			remoteRef = EB8FFA562DBE6A450039D27D /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -356,10 +360,10 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		EB7293782DBCDF8400FFAB34 /* PBXTargetDependency */ = {
+		EB7BF78B2DBF914200D0E120 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = BLEFramework;
-			targetProxy = EB7293772DBCDF8400FFAB34 /* PBXContainerItemProxy */;
+			targetProxy = EB7BF78A2DBF914200D0E120 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -385,7 +389,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.wanling.thermalcomfortapp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.wanling.thermalcomfortappdemo;
 				PRODUCT_NAME = ThermalComfortMobileApp;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -419,7 +423,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.wanling.thermalcomfortapp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.wanling.thermalcomfortappdemo;
 				PRODUCT_NAME = ThermalComfortMobileApp;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;

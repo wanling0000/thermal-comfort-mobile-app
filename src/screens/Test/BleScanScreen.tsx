@@ -1,15 +1,19 @@
+// BleScanScreen.tsx
 import React from 'react';
 import { View, Text, FlatList, Button, StyleSheet } from 'react-native';
-import { useBLEBridge } from '../../services/ble-service/native/useBLEBridge.ts';
+import { useBLE } from '../../services/ble-service/BleProvider.tsx';
+import { useDeviceMonitor } from '../../services/ble-service/sensor/DeviceMonitor.tsx'; // 带通知的版本
 
 export default function BleScanScreen() {
-    const { sensorDataList, rescan } = useBLEBridge();
+    const { sensorDataList, rescan } = useBLE();
+
+    useDeviceMonitor();
 
     return (
         <View style={styles.container}>
             <FlatList
                 data={sensorDataList}
-                keyExtractor={(_, index) => index.toString()}
+                keyExtractor={(item) => item.macAddress}
                 renderItem={({ item }) => (
                     <View style={styles.item}>
                         <Text>📟 {item.name}</Text>
