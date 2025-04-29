@@ -1,8 +1,14 @@
+import { enableScreens } from 'react-native-screens';
+enableScreens();
+
 import React from 'react';
-import BleScanScreen from './src/screens/Test/BleScanScreen';
+import { NavigationContainer } from '@react-navigation/native';
+import { AppNavigator } from './src/navigation/AppNavigator';
 
 export default function App() {
     return (
-        <BleScanScreen />
+        <NavigationContainer>
+            <AppNavigator />
+        </NavigationContainer>
     );
 }

@@ -1,17 +1,12 @@
 import { useEffect, useState } from 'react';
-import { NativeModules, NativeEventEmitter, Platform } from 'react-native';
+import { NativeModules, NativeEventEmitter } from 'react-native';
+import {SensorData} from "../../../types/SensorData";
 
 const { BLEBridge } = NativeModules;
 
-type SensorData = {
-    name: string;
-    temperature: number | null;
-    humidity: number | null;
-    battery: number | null;
-};
-
 export function useBLEBridge() {
     const [sensorDataList, setSensorDataList] = useState<SensorData[]>([]);
+    const [lastSeenMap, setLastSeenMap] = useState<Record<string, number>>({});
 
     useEffect(() => {
         if (!BLEBridge) {
@@ -23,11 +18,38 @@ export function useBLEBridge() {
 
         const deviceListener = eventEmitter.addListener('didFoundDevice', (data) => {
             console.log('[BLEBridge - deviceListener] Received device:', data);
-            const formattedData = {
-                ...data,
+            const macAddress = extractMacAddress(data.name);
+            if (!macAddress) {
+                console.warn('[BLEBridge] Could not extract mac address from:', data.name);
+                return;
+            }
+
+            const now = Date.now();
+
+            const formattedData: SensorData = {
+                sensorId: macAddress,
+                macAddress,
+                name: data.name,
                 temperature: typeof data.temperature === 'string' ? parseFloat(data.temperature) : null,
+                humidity: data.humidity ?? null,
+                battery: data.battery ?? null,
+                timestamp: now,
             };
-            setSensorDataList((prev) => [...prev, formattedData]);
+            setSensorDataList((prev) => {
+                const exists = prev.find((d) => d.sensorId === formattedData.sensorId);
+                if (exists) {
+                    return prev.map((d) =>
+                        d.sensorId === formattedData.sensorId ? formattedData : d
+                    );
+                } else {
+                    return [...prev, formattedData];
+                }
+            });
+
+            setLastSeenMap((prev) => ({
+                ...prev,
+                [macAddress]: now,
+            }));
         });
 
         const errorListener = eventEmitter.addListener('bleError', (error) => {
@@ -55,5 +77,11 @@ export function useBLEBridge() {
         BLEBridge?.startScan?.();
     };
 
-    return { sensorDataList, rescan };
+    return { sensorDataList, lastSeenMap, rescan };
+}
+
+export function extractMacAddress(name: string): string | null {
+    const macRegex = /([0-9A-F]{2}[:-]){5}([0-9A-F]{2})/i;
+    const match = name.match(macRegex);
+    return match ? match[0] : null;
 }
