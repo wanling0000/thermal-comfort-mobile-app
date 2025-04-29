@@ -17,11 +17,13 @@ public class BLEManager: NSObject, ObservableObject {
         super.init()
         centralManager = CBCentralManager(delegate: self, queue: nil)
         logger.info("BLEManager initialized")
+        print("[BLEManager] Initialized")
     }
     
     public func startScan() {
         guard let manager = centralManager, manager.state == .poweredOn else {
             logger.warning("Cannot start scan: Bluetooth not powered on.")
+            print("[BLEManager] Cannot start scan: Bluetooth not powered on.")
             return
         }
         manager.stopScan()
@@ -29,12 +31,14 @@ public class BLEManager: NSObject, ObservableObject {
             CBCentralManagerScanOptionAllowDuplicatesKey: true
         ])
         logger.info("BLE scan started.")
+        print("[BLEManager] BLE scan started")
     }
     
     public func stopScan() {
         guard let manager = centralManager else { return }
         manager.stopScan()
         logger.info("BLE scan stopped.")
+        print("[BLEManager] BLE scan stopped")
     }
 }
 
@@ -42,11 +46,13 @@ extension BLEManager: CBCentralManagerDelegate {
     public func centralManagerDidUpdateState(_ central: CBCentralManager) {
         if central.state == .poweredOn {
             logger.info("Bluetooth is ON. Starting scan...")
+            print("[BLEManager] Bluetooth is ON. Starting scan...")
             centralManager.scanForPeripherals(withServices: nil, options: [
                 CBCentralManagerScanOptionAllowDuplicatesKey: true
             ])
         } else {
             logger.warning("Bluetooth not ready. State: \(central.state.rawValue)")
+            print("[BLEManager] Bluetooth not ready. State: \(central.state.rawValue)")
         }
     }
     
@@ -86,7 +92,14 @@ extension BLEManager: CBCentralManagerDelegate {
             Temperature: \(parsed.temperature.map { String(format: "%.1f", $0) } ?? "N/A") °C
             Humidity: \(parsed.humidity.map { "\($0)" } ?? "N/A") %
             Battery: \(parsed.battery.map { "\($0)" } ?? "N/A") %
-            """)
+        """)
+        print("""
+            [BLEManager] Device discovered:
+            Name: \(deviceName)
+            Temp: \(parsed.temperature.map { String(format: "%.1f", $0) } ?? "N/A") °C
+            Humidity: \(parsed.humidity.map { "\($0)" } ?? "N/A") %
+            Battery: \(parsed.battery.map { "\($0)" } ?? "N/A") %
+        """)
     }
     
     // MARK: - Helper Methods
