@@ -37,7 +37,17 @@ export function useBLEBridge() {
             };
             setSensorDataList((prev) => {
                 const exists = prev.find((d) => d.sensorId === formattedData.sensorId);
+
                 if (exists) {
+                    const hasChanged =
+                        exists.temperature !== formattedData.temperature ||
+                        exists.humidity !== formattedData.humidity ||
+                        exists.battery !== formattedData.battery;
+
+                    if (!hasChanged) {
+                        return prev; // 数据没变，就不更新，不触发 useEffect
+                    }
+
                     return prev.map((d) =>
                         d.sensorId === formattedData.sensorId ? formattedData : d
                     );
@@ -45,6 +55,7 @@ export function useBLEBridge() {
                     return [...prev, formattedData];
                 }
             });
+
 
             setLastSeenMap((prev) => ({
                 ...prev,

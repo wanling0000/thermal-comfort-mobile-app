@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react';
+import {useState, useEffect, useRef} from 'react';
 import { PermissionsAndroid, Platform } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
-import { GeoLocation } from "../../types/Location.ts";
+import {LocationPreview} from "../../types/Location.ts";
+import {reverseGeocode} from "./reverseGeocode.ts";
 
-export function useLocation() {
-    const [location, setLocation] = useState<GeoLocation | null>(null);
+export function useLocation(): LocationPreview | null {
+    const [location, setLocation] = useState<LocationPreview | null>(null);
+    const lastLocationRef = useRef<LocationPreview | null>(null);
 
     useEffect(() => {
         async function requestLocationPermission() {
@@ -27,6 +29,28 @@ export function useLocation() {
             return true;
         }
 
+        async function handlePosition(latitude: number, longitude: number) {
+            const prev = lastLocationRef.current;
+            if (
+                prev &&
+                Math.abs(prev.latitude - latitude) < 0.00001 &&
+                Math.abs(prev.longitude - longitude) < 0.00003 // 0.00001 度 ≈ 1m
+            ) {
+                return;
+            }
+
+            const displayName = await reverseGeocode(latitude, longitude);
+            const newLoc: LocationPreview = {
+                latitude,
+                longitude,
+                displayName,
+                isCustom: false,
+            };
+
+            lastLocationRef.current = newLoc; // 更新引用
+            setLocation(newLoc);
+        }
+
         async function initLocation() {
             const hasPermission = await requestLocationPermission();
             if (!hasPermission) return;
@@ -34,11 +58,9 @@ export function useLocation() {
             // Fetch current location
             Geolocation.getCurrentPosition(
                 (position) => {
-                    setLocation({
-                        latitude: position.coords.latitude,
-                        longitude: position.coords.longitude,
-                    });
-                    console.log('[useLocation] First location:', position.coords);
+                    const { latitude, longitude } = position.coords;
+                    console.log('[useLocation] First location:', latitude, longitude);
+                    handlePosition(latitude, longitude);
                 },
                 (error) => {
                     console.error('[useLocation] Error getting first position:', error);
@@ -54,10 +76,8 @@ export function useLocation() {
             // Start watching location changes
             const watchId = Geolocation.watchPosition(
                 (position) => {
-                    setLocation({
-                        latitude: position.coords.latitude,
-                        longitude: position.coords.longitude,
-                    });
+                    const { latitude, longitude } = position.coords;
+                    handlePosition(latitude, longitude);
                 },
                 (error) => {
                     console.error('[useLocation] Error watching position:', error);

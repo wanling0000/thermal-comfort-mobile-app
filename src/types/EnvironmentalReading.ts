@@ -1,3 +1,5 @@
+import {LocationPreview} from "./Location.ts";
+
 export type EnvironmentalReading = {
     readingId: string; // UUID
     sensorId: string;
@@ -5,6 +7,5 @@ export type EnvironmentalReading = {
     humidity: number;
     battery?: number | null;
     timestamp: number; // Unix timestamp in milliseconds
-    rawCoordinates?: { latitude: number; longitude: number } | null;
-    locationTagId?: string | null; // User-defined location tag, optional in early versions
+    location?: LocationPreview | null;
 };

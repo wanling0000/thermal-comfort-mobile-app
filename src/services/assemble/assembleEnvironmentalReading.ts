@@ -1,5 +1,6 @@
 import { EnvironmentalReading } from '../../types/EnvironmentalReading.ts';
 import { SensorData } from '../../types/SensorData.ts';
+import {LocationPreview} from "../../types/Location.ts";
 
 /**
  * Assemble a full EnvironmentalReading from SensorData and optional location.
@@ -8,8 +9,7 @@ import { SensorData } from '../../types/SensorData.ts';
  */
 export function assembleEnvironmentalReading(
     sensor: SensorData,
-    location: { latitude: number; longitude: number } | null,
-    locationTagId?: string
+    location: LocationPreview | null
 ): EnvironmentalReading {
     return {
         readingId: `${sensor.sensorId}-${sensor.timestamp}`,
@@ -18,7 +18,6 @@ export function assembleEnvironmentalReading(
         humidity: sensor.humidity ?? 0,
         battery: sensor.battery ?? null,
         timestamp: sensor.timestamp,
-        rawCoordinates: location ? { latitude: location.latitude, longitude: location.longitude } : null,
-        locationTagId: locationTagId ?? null,
+        location: location ?? null,
     };
 }
