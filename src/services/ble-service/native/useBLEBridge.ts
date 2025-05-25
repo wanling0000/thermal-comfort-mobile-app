@@ -35,27 +35,24 @@ export function useBLEBridge() {
                 battery: data.battery ?? null,
                 timestamp: now,
             };
-            setSensorDataList((prev) => {
-                const exists = prev.find((d) => d.sensorId === formattedData.sensorId);
-
-                if (exists) {
+            setSensorDataList(prev => {
+                const updated = [...prev];
+                const index = updated.findIndex(d => d.sensorId === formattedData.sensorId);
+                if (index !== -1) {
+                    const existing = updated[index];
                     const hasChanged =
-                        exists.temperature !== formattedData.temperature ||
-                        exists.humidity !== formattedData.humidity ||
-                        exists.battery !== formattedData.battery;
+                        existing.temperature !== formattedData.temperature ||
+                        existing.humidity !== formattedData.humidity ||
+                        existing.battery !== formattedData.battery;
 
-                    if (!hasChanged) {
-                        return prev; // 数据没变，就不更新，不触发 useEffect
-                    }
+                    if (!hasChanged) return prev;
 
-                    return prev.map((d) =>
-                        d.sensorId === formattedData.sensorId ? formattedData : d
-                    );
+                    updated[index] = formattedData;
+                    return updated;
                 } else {
                     return [...prev, formattedData];
                 }
             });
-
 
             setLastSeenMap((prev) => ({
                 ...prev,

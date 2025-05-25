@@ -8,7 +8,7 @@ export const EnvironmentalReadingService = {
             return;
         }
 
-        return request('/api/v1/readings/environment', {
+        return request('/api/v1/readings/upload', {
             method: 'POST',
             body: JSON.stringify(readings),
         });
