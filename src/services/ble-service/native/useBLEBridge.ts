@@ -17,7 +17,7 @@ export function useBLEBridge() {
         const eventEmitter = new NativeEventEmitter(BLEBridge);
 
         const deviceListener = eventEmitter.addListener('didFoundDevice', (data) => {
-            console.log('[BLEBridge - deviceListener] Received device:', data);
+            // console.log('[BLEBridge - deviceListener] Received device:', data);
             const macAddress = extractMacAddress(data.name);
             if (!macAddress) {
                 console.warn('[BLEBridge] Could not extract mac address from:', data.name);

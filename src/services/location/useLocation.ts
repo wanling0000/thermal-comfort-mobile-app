@@ -1,12 +1,34 @@
-import {useState, useEffect, useRef} from 'react';
+import {useState, useEffect, useRef, useCallback} from 'react';
 import { PermissionsAndroid, Platform } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
 import {LocationPreview} from "../../types/Location.ts";
 import {reverseGeocode} from "./reverseGeocode.ts";
 
-export function useLocation(): LocationPreview | null {
+type UseLocationResult = {
+    location: LocationPreview | null;
+    setCustomTag: (tag: string | null) => void;
+};
+
+export function useLocation(): UseLocationResult {
     const [location, setLocation] = useState<LocationPreview | null>(null);
     const lastLocationRef = useRef<LocationPreview | null>(null);
+    const customTagRef = useRef<string | undefined>(undefined);
+
+    const setCustomTag = useCallback((tag: string | null) => {
+        customTagRef.current = tag ?? undefined;
+
+        // 更新已有 location（如果有）
+        if (lastLocationRef.current) {
+            const prev = lastLocationRef.current;
+            const updated: LocationPreview = {
+                ...prev,
+                customTag: tag ?? undefined,
+                isCustom: !!tag,
+            };
+            lastLocationRef.current = updated;
+            setLocation(updated);
+        }
+    }, []);
 
     useEffect(() => {
         async function requestLocationPermission() {
@@ -44,7 +66,8 @@ export function useLocation(): LocationPreview | null {
                 latitude,
                 longitude,
                 displayName,
-                isCustom: false,
+                customTag: customTagRef.current,
+                isCustom: !!customTagRef.current,
             };
 
             lastLocationRef.current = newLoc; // 更新引用
@@ -95,5 +118,8 @@ export function useLocation(): LocationPreview | null {
 
     }, []);
 
-    return location;
+    return {
+        location,
+        setCustomTag,
+    };
 }

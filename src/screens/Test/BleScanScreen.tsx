@@ -4,13 +4,12 @@ import { useBLEBridge } from '../../services/ble-service/native/useBLEBridge.ts'
 import { useLocation} from "../../services/location/useLocation.ts";
 import dayjs from 'dayjs';
 import {reverseGeocode} from "../../services/location/reverseGeocode.ts";
-import {useUploadQueue} from "../../services/upload/useUploadQueue.ts";
 
 export default function BleScanScreen() {
     const { sensorDataList, lastSeenMap, rescan } = useBLEBridge();
-    const location = useLocation();
+    const { location, setCustomTag } = useLocation();
     const [address, setAddress] = useState<string | null>(null);
-    const { pendingData } = useUploadQueue();
+    // const { pendingData } = useUploadQueue();
 
     useEffect(() => {
         if (location) {
@@ -46,7 +45,7 @@ export default function BleScanScreen() {
             />
             <Button
                 title="🧪 Print Pending Data"
-                onPress={() => console.log('[UI Trigger] Current Pending Data:', pendingData)}
+                // onPress={() => console.log('[ui Trigger] Current Pending Data:', pendingData)}
             />
             <Button title="🔄 Rescan" onPress={rescan} />
         </View>

@@ -4,14 +4,15 @@ import { EnvironmentalReading } from '../../types/EnvironmentalReading';
 export const EnvironmentalReadingService = {
     uploadEnvironmentalReadings: async (readings: EnvironmentalReading[]) => {
         if (readings.length === 0) {
-            console.warn('[EnvironmentalReadingService] No readings to upload.');
+            console.warn('[EnvironmentalReadingService] No readings to environment.');
             return;
         }
 
-        return request('/api/v1/readings/upload', {
+        return request('/api/v1/readings/environment', {
             method: 'POST',
-            body: JSON.stringify({ readings }),
+            body: JSON.stringify(readings),
         });
+
     },
 
     getLatestSensorData: (sensorId: string) => {

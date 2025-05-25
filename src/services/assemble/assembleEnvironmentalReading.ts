@@ -1,6 +1,7 @@
 import { EnvironmentalReading } from '../../types/EnvironmentalReading.ts';
 import { SensorData } from '../../types/SensorData.ts';
 import {LocationPreview} from "../../types/Location.ts";
+import { v4 as uuidv4 } from 'uuid';
 
 /**
  * Assemble a full EnvironmentalReading from SensorData and optional location.
@@ -11,13 +12,16 @@ export function assembleEnvironmentalReading(
     sensor: SensorData,
     location: LocationPreview | null
 ): EnvironmentalReading {
+    const timestamp = sensor.timestamp;
+    const dedupKey = `${sensor.sensorId}-${timestamp}`;
+
     return {
-        readingId: `${sensor.sensorId}-${sensor.timestamp}`,
+        readingId: `${dedupKey}-${uuidv4()}`,
+        dedupKey,
         sensorId: sensor.sensorId,
         temperature: sensor.temperature ?? 0,
         humidity: sensor.humidity ?? 0,
-        battery: sensor.battery ?? null,
-        timestamp: sensor.timestamp,
+        timestamp,
         location: location ?? null,
     };
 }
