@@ -15,7 +15,7 @@ import {environmentalBuffer} from "./environmentalDataBufferSingleton.ts";
  * - Support offline device detection (TODO)
  */
 
-const UPLOAD_INTERVAL = 1 * 60 * 1000; // 5 minutes
+const UPLOAD_INTERVAL = 10 * 60 * 1000; // 10 minutes
 // const UPLOAD_INTERVAL = 10000; // 10 seconds for testing
 const MAX_RETRY_INTERVAL = 15 * 60 * 1000; // Max backoff to 15 minutes
 // const DEBUG_UPLOAD = true;
@@ -49,12 +49,7 @@ export function useUploadQueue() {
         };
 
         const tryUpload = async () => {
-            const now = Date.now();
-            const uploadThreshold = now - 60_000; // ✅ 读数超过 1 分钟才上传
-
-            const toUpload = environmentalBuffer.getRealtime().filter(
-                r => r.timestamp < uploadThreshold
-            );
+            const toUpload = environmentalBuffer.flushUpload();
 
             if (toUpload.length === 0) {
                 console.log('[UploadQueue] 🚫 Nothing to upload, try again later');
@@ -68,7 +63,7 @@ export function useUploadQueue() {
 
                 if (!DEBUG_UPLOAD) {
                     await EnvironmentalReadingService.uploadEnvironmentalReadings(toUpload);
-                    environmentalBuffer.removeReadingsById(toUpload.map(r => r.readingId));
+                    // ✅ 展示池不用删，上传池已清除
                 }
 
                 retryIntervalRef.current = UPLOAD_INTERVAL;

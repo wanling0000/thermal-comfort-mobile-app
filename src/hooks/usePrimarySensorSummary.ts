@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import dayjs from 'dayjs';
 import {useBLEBridge} from "../services/ble-service/native/useBLEBridge.ts";
-import {useEnvironmentalDataBuffer} from "../services/environment/useEnvironmentalDataBuffer.ts";
 import {SensorData} from "../types/SensorData.ts";
+import {environmentalBuffer} from "../services/environment/environmentalDataBufferSingleton.ts";
 
 type Summary = {
     sensorId: string;
@@ -38,7 +38,7 @@ type UsePrimarySensorSummaryReturn = {
  */
 export function usePrimarySensorSummary(mode: 'ble' | 'buffer' = 'ble'): UsePrimarySensorSummaryReturn {
     const { sensorDataList, lastSeenMap } = useBLEBridge();
-    const { realtimeBuffer } = useEnvironmentalDataBuffer();
+    const realtimeBuffer = environmentalBuffer.getRealtime();
 
     const minuteKey = Math.floor(Date.now() / 60_000);
 

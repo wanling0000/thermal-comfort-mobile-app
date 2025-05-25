@@ -1,5 +1,35 @@
 import { useEffect, useRef, useState } from 'react';
 import { EnvironmentalReading } from '../../types/EnvironmentalReading';
+/**
+ * 判断两条读数是否“有意义变化”（温度、湿度、位置）
+ */
+const hasChanged = (a: EnvironmentalReading, b: EnvironmentalReading): boolean => {
+    const tempChanged = a.temperature !== b.temperature;
+    const humidityChanged = a.humidity !== b.humidity;
+
+    const locationChanged = (() => {
+        if (!a.location || !b.location) return a.location !== b.location;
+
+        const R = 6371e3; // 地球半径（米）
+        const toRad = (deg: number) => deg * Math.PI / 180;
+
+        const φ1 = toRad(a.location.latitude);
+        const φ2 = toRad(b.location.latitude);
+        const Δφ = toRad(b.location.latitude - a.location.latitude);
+        const Δλ = toRad(b.location.longitude - a.location.longitude);
+
+        const aVal = Math.sin(Δφ / 2) ** 2 +
+            Math.cos(φ1) * Math.cos(φ2) *
+            Math.sin(Δλ / 2) ** 2;
+
+        const c = 2 * Math.atan2(Math.sqrt(aVal), Math.sqrt(1 - aVal));
+        const distance = R * c;
+
+        return distance > 5;
+    })();
+
+    return tempChanged || humidityChanged || locationChanged;
+};
 
 /**
  * 缓存池结构：
@@ -11,7 +41,7 @@ export function useEnvironmentalDataBuffer() {
     const [uploadBuffer, setUploadBuffer] = useState<EnvironmentalReading[]>([]);
     const realtimeBufferRef = useRef<EnvironmentalReading[]>([]);
 
-    const DISPLAY_WINDOW_MS = 1 * 60 * 1000; // 展示窗口：60分钟 TODO: debug
+    const DISPLAY_WINDOW_MS = 60 * 60 * 1000; // 展示窗口：60分钟 TODO: debug
     const CLEAN_INTERVAL_MS = 5 * 60 * 1000; // 清理+转移频率：5分钟
 
     // 保证 ref 跟最新 state 同步
@@ -19,42 +49,25 @@ export function useEnvironmentalDataBuffer() {
         realtimeBufferRef.current = realtimeBuffer;
     }, [realtimeBuffer]);
 
-    /**
-     * 判断两条读数是否足够不同（避免频繁重复）
-     */
-    const hasChanged = (a: EnvironmentalReading, b: EnvironmentalReading): boolean => {
-        const locationChanged = (() => {
-            if (!a.location || !b.location) return a.location !== b.location;
-            const latDiff = Math.abs(a.location.latitude - b.location.latitude);
-            const lngDiff = Math.abs(a.location.longitude - b.location.longitude);
-            const nameDiff = a.location.displayName !== b.location.displayName;
-            return latDiff > 0.0001 || lngDiff > 0.0001 || nameDiff;
-        })();
-
-        return a.temperature !== b.temperature ||
-            a.humidity !== b.humidity ||
-            locationChanged;
-    };
 
     /**
      * 新增一条读数：和当前 buffer 最后一条比对，变化才加入
      */
     const addReading = (reading: EnvironmentalReading) => {
         setRealtimeBuffer(prev => {
-            // 构建 Map 快速定位已有的 dedupKey → 数据
-            const prevMap = new Map(prev.map(r => [r.dedupKey, r]));
-            const existing = prevMap.get(reading.dedupKey);
+            const now = Date.now();
+            const oneHourAgo = now - DISPLAY_WINDOW_MS;
+            const cleaned = prev.filter(r => r.timestamp >= oneHourAgo);
 
-            console.log('[AddReading] New reading:', reading);
-            console.log('[AddReading] Existing reading:', existing);
-
-            if (!existing || hasChanged(existing, reading)) {
-                console.log('[AddReading] Added to buffer ✅');
-                return [...prev, reading];
+            const prevReading = cleaned[cleaned.length - 1];
+            if (!prevReading || hasChanged(prevReading, reading)) {
+                console.log('[AddReading] Added to buffer ✅', reading);
+                setUploadBuffer(prevUpload => [...prevUpload, reading]);
+                return [...cleaned, reading];
             }
 
             console.log('[AddReading] Skipped, not changed ❌');
-            return prev;
+            return cleaned;
         });
     };
 
