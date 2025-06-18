@@ -1,18 +1,27 @@
 import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import {View, StyleSheet, ScrollView} from 'react-native';
 import {
     Modal,
     Portal,
     Text,
     Button,
     TextInput,
-    RadioButton,
-    Title,
+    Title, Chip,
 } from 'react-native-paper';
 import Slider from '@react-native-community/slider';
 import { ACTIVITY_TAGS } from '../constants/activityTags';
+import {DetailedFeedbackInput, FeedbackWithReadingInput} from "../../../types/Feedback.ts";
+import {EnvironmentalReading} from "../../../types/EnvironmentalReading.ts";
+import { CLOTHING_TAGS} from "../constants/clothingTags.ts";
 
-const FeedbackFormModal = ({ visible, onDismiss, onSubmit }) => {
+type Props = {
+    visible: boolean;
+    reading: EnvironmentalReading | null;
+    onDismiss: () => void;
+    onSubmit: (data: FeedbackWithReadingInput) => void;
+};
+
+const FeedbackFormModal = ({ visible, reading, onDismiss, onSubmit }: Props) => {
     const [comfortLevel, setComfortLevel] = useState(0);
     const [adjustedTemp, setAdjustedTemp] = useState(0);
     const [adjustedHumid, setAdjustedHumid] = useState(0);
@@ -21,81 +30,118 @@ const FeedbackFormModal = ({ visible, onDismiss, onSubmit }) => {
     const [notes, setNotes] = useState('');
 
     const handleSubmit = () => {
-        onSubmit({
+        if (!reading || !reading.location) return;
+
+        const loc = reading.location;
+
+        const feedback: DetailedFeedbackInput = {
             comfort_level: comfortLevel,
             feedback_type: 'detailed',
             adjustedTempLevel: adjustedTemp,
             adjustedHumidLevel: adjustedHumid,
             clothingLevel,
             activityTypeId: activity,
-            notes,
+            notes: notes.trim(),
             timestamp: Date.now(),
-        });
+            location_display_name: loc.displayName,
+            raw_coordinates: {
+                latitude: loc.latitude,
+                longitude: loc.longitude,
+            },
+            is_custom_location: loc.isCustom,
+            custom_tag_name: loc.customTag,
+        };
+
+        const payload: FeedbackWithReadingInput = {
+            feedback,
+            reading,
+        };
+
+        console.log('[🟡 Submit FeedbackWithReadingInput]', JSON.stringify(payload, null, 2));
+
+        onSubmit(payload);
     };
+
 
     return (
         <Portal>
             <Modal visible={visible} onDismiss={onDismiss} contentContainerStyle={styles.container}>
-                <Title style={styles.title}>Detailed Feedback</Title>
+                <ScrollView contentContainerStyle={styles.scrollContent}>
+                    <Title style={styles.title}>Detailed Feedback</Title>
 
-                <Text>Comfort Level (from 🥶 to 🥵):</Text>
-                <Slider
-                    style={styles.slider}
-                    minimumValue={-2}
-                    maximumValue={2}
-                    step={1}
-                    value={comfortLevel}
-                    onValueChange={setComfortLevel}
-                />
+                    <Text>Comfort Level (from 🥶 to 🥵):</Text>
+                    <Slider
+                        style={styles.slider}
+                        minimumValue={-2}
+                        maximumValue={2}
+                        step={1}
+                        value={comfortLevel}
+                        onValueChange={setComfortLevel}
+                    />
 
-                <Text>Adjust Temperature:</Text>
-                <Slider
-                    style={styles.slider}
-                    minimumValue={-2}
-                    maximumValue={2}
-                    step={1}
-                    value={adjustedTemp}
-                    onValueChange={setAdjustedTemp}
-                />
+                    <Text>Adjust Temperature:</Text>
+                    <Slider
+                        style={styles.slider}
+                        minimumValue={-2}
+                        maximumValue={2}
+                        step={1}
+                        value={adjustedTemp}
+                        onValueChange={setAdjustedTemp}
+                    />
 
-                <Text>Adjust Humidity:</Text>
-                <Slider
-                    style={styles.slider}
-                    minimumValue={-2}
-                    maximumValue={2}
-                    step={1}
-                    value={adjustedHumid}
-                    onValueChange={setAdjustedHumid}
-                />
+                    <Text>Adjust Humidity:</Text>
+                    <Slider
+                        style={styles.slider}
+                        minimumValue={-2}
+                        maximumValue={2}
+                        step={1}
+                        value={adjustedHumid}
+                        onValueChange={setAdjustedHumid}
+                    />
 
-                <Text>Activity:</Text>
-                <RadioButton.Group onValueChange={setActivity} value={activity}>
-                    {ACTIVITY_TAGS.map(tag => (
-                        <RadioButton.Item key={tag.id} label={tag.label} value={tag.id} />
-                    ))}
-                </RadioButton.Group>
+                    <Text style={{ marginTop: 12, marginBottom: 4 }}>Activity:</Text>
+                    <View style={styles.chipContainer}>
+                        {ACTIVITY_TAGS.map(tag => (
+                            <Chip
+                                key={tag.id}
+                                selected={activity === tag.id}
+                                onPress={() => setActivity(tag.id)}
+                                style={styles.chip}
+                            >
+                                {tag.label}
+                            </Chip>
+                        ))}
+                    </View>
 
-                <TextInput
-                    label="Clothing"
-                    value={clothingLevel}
-                    onChangeText={setClothingLevel}
-                    mode="outlined"
-                />
+                    <Text style={{ marginTop: 12, marginBottom: 4 }}>Clothing Level:</Text>
+                    <View style={styles.chipContainer}>
+                        {CLOTHING_TAGS.map(tag => (
+                            <Chip
+                                key={tag.id}
+                                selected={clothingLevel === tag.id}
+                                onPress={() => setClothingLevel(tag.id)}
+                                style={styles.chip}
+                            >
+                                {tag.label}
+                            </Chip>
+                        ))}
+                    </View>
 
-                <TextInput
-                    label="Notes"
-                    value={notes}
-                    onChangeText={setNotes}
-                    mode="outlined"
-                    multiline
-                    numberOfLines={3}
-                    style={{ marginBottom: 8 }}
-                />
+                    <TextInput
+                        label="Notes"
+                        value={notes}
+                        onChangeText={setNotes}
+                        mode="outlined"
+                        multiline
+                        numberOfLines={3}
+                        style={{ marginBottom: 8 }}
+                    />
 
-                <View style={styles.buttonRow}>
-                    <Button onPress={onDismiss}>Cancel</Button>
-                    <Button mode="contained" onPress={handleSubmit}>Submit</Button>
-                </View>
+                    <View style={styles.buttonRow}>
+                        <Button onPress={onDismiss}>Cancel</Button>
+                        <Button mode="contained" onPress={handleSubmit}>Submit</Button>
+                    </View>
+                </ScrollView>
             </Modal>
         </Portal>
     );
@@ -119,6 +165,19 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         marginTop: 16,
+    },
+    chipContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 8,
+        marginBottom: 12,
+    },
+    chip: {
+        marginRight: 8,
+        marginBottom: 8,
+    },
+    scrollContent: {
+        paddingBottom: 100,
     },
 });
 

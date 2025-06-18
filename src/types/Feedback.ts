@@ -1,19 +1,35 @@
 import {EnvironmentalReading} from "./EnvironmentalReading.ts";
 
-export interface QuickFeedbackInput {
-    comfort_level: number; // -2 to 2
-    feedback_type: 'quick';
+export interface BaseFeedbackInput {
+    comfort_level: number;
+    feedback_type: 'quick' | 'detailed';
     timestamp: number;
     raw_coordinates: {
         latitude: number;
         longitude: number;
     };
-    location_display_name: string;     // 地点名（无论是否自定义）
-    is_custom_location?: boolean;      // 是否自定义
-    custom_tag_name?: string;          // 自定义标签名（可选）
+    location_display_name: string;
+    is_custom_location?: boolean;
+    custom_tag_name?: string;
 }
 
+export interface QuickFeedbackInput extends BaseFeedbackInput {
+    feedback_type: 'quick';
+}
+
+export interface DetailedFeedbackInput extends BaseFeedbackInput {
+    feedback_type: 'detailed';
+    adjustedTempLevel: number;
+    adjustedHumidLevel: number;
+    clothingLevel: string;
+    activityTypeId: string;
+    notes: string;
+}
+
+
+export type FeedbackInput = QuickFeedbackInput | DetailedFeedbackInput;
+
 export interface FeedbackWithReadingInput {
-    feedback: QuickFeedbackInput;
+    feedback: FeedbackInput;
     reading: EnvironmentalReading;
 }

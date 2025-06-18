@@ -1,17 +1,29 @@
-import React, {useEffect, useState} from 'react';
-import {View, Text, ScrollView} from 'react-native';
-import {Button} from "react-native-paper";
-import {FeedbackService} from "../../services/api/FeedbackService.ts";
+import React, { useEffect, useState } from 'react';
+import { View, ScrollView, StyleSheet } from 'react-native';
+import { Button } from "react-native-paper";
+import { FeedbackService } from "../../services/api/FeedbackService.ts";
 import FeedbackTimeline from "./components/FeedbackTimeline.tsx";
 import FeedbackFormModal from "./components/FeedbackFormModal.tsx";
+import { FeedbackInput } from '../../types/Feedback.ts';
+import {useLocation} from "../../services/location/useLocation.ts";
+import {assembleEnvironmentalReading} from "../../services/assemble/assembleEnvironmentalReading.ts";
+import {usePrimarySensorSummary} from "../../hooks/usePrimarySensorSummary.ts";
+
+type FeedbackEntry = FeedbackInput;
 
 export default function FeedbackScreen() {
     const [modalVisible, setModalVisible] = useState(false);
     const [feedbackList, setFeedbackList] = useState<FeedbackEntry[]>([]);
+    const { primarySensor } = usePrimarySensorSummary();
+    const { location } = useLocation();
+
+    const reading = primarySensor && location
+        ? assembleEnvironmentalReading(primarySensor, location)
+        : null;
 
     const fetchFeedback = async () => {
-        const data = await FeedbackService.getAllFeedback(); // 包括 quick + detailed
-        const sorted = data.sort((a, b) => b.timestamp - a.timestamp);
+        const data = await FeedbackService.getAllFeedback() as FeedbackInput[];
+        const sorted = data.sort((a: FeedbackEntry, b: FeedbackEntry) => b.timestamp - a.timestamp);
         setFeedbackList(sorted);
     };
 
@@ -30,21 +42,22 @@ export default function FeedbackScreen() {
                 Add Feedback
             </Button>
 
-            <ScrollView style={styles.timelineWrapper}>
-                <FeedbackTimeline
-                    feedbackList={feedbackList}
-                    onRefresh={fetchFeedback}
-                />
-            </ScrollView>
+            <FeedbackTimeline
+                feedbackList={feedbackList}
+                onRefresh={fetchFeedback}
+            />
 
             <FeedbackFormModal
                 visible={modalVisible}
+                reading={reading}
                 onDismiss={() => setModalVisible(false)}
-                onSubmit={async () => {
+                onSubmit={async (payload) => {
+                    await FeedbackService.submitFeedbackWithReading(payload);
                     await fetchFeedback();
                     setModalVisible(false);
                 }}
             />
+
         </View>
     );
 }
