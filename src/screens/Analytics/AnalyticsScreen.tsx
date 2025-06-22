@@ -10,7 +10,6 @@ export default function AnalyticsScreen() {
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
-            <Text style={styles.header}>Analysis</Text>
             <AnalysisTabBar selectedTab={selectedTab} onSelectTab={setSelectedTab} />
             <ComfortSummaryCard />
             <ComfortChart tab={selectedTab} />

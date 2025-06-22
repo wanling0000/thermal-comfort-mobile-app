@@ -1,16 +1,17 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Button } from 'react-native-paper';
-
-const tabs = ['day', 'week', 'month', 'year'];
+type TabOption = 'day' | 'week' | 'month' | 'year';
 
 export default function AnalysisTabBar({
                                            selectedTab,
                                            onSelectTab,
                                        }: {
-    selectedTab: string;
-    onSelectTab: (tab: string) => void;
+    selectedTab: TabOption;
+    onSelectTab: (tab: TabOption) => void;
 }) {
+    const tabs: TabOption[] = ['day', 'week', 'month', 'year'];
+
     return (
         <View style={styles.container}>
             {tabs.map(tab => (

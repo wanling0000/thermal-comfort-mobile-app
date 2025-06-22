@@ -1,5 +1,5 @@
 import {request} from "../../utils/request.ts";
-import { FeedbackWithReadingInput } from '../../types/Feedback';
+import {FeedbackInput, FeedbackWithReadingInput} from '../../types/Feedback';
 
 export const FeedbackService = {
     submitFeedbackWithReading: async (input: FeedbackWithReadingInput) => {
@@ -10,6 +10,7 @@ export const FeedbackService = {
     },
 
     getAllFeedback: async () => {
+        console.log('[📡 call /api/v1/feedback/all]');
         // return request('/api/v1/feedback/all', {
         //     method: 'GET',
         // });
@@ -42,5 +43,12 @@ export const FeedbackService = {
             },
         ];
     },
+
+    getLatestFeedback: async (): Promise<FeedbackInput> => {
+        return request('/api/v1/feedback/latest', {
+            method: 'GET',
+        });
+    },
+
 };
 

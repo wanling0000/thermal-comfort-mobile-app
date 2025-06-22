@@ -12,6 +12,8 @@ import {usePrimarySensorSummary} from "../../hooks/usePrimarySensorSummary.ts";
 type FeedbackEntry = FeedbackInput;
 
 export default function FeedbackScreen() {
+    console.log('[🧩 FeedbackScreen loaded]');
+
     const [modalVisible, setModalVisible] = useState(false);
     const [feedbackList, setFeedbackList] = useState<FeedbackEntry[]>([]);
     const { primarySensor } = usePrimarySensorSummary();
@@ -22,9 +24,14 @@ export default function FeedbackScreen() {
         : null;
 
     const fetchFeedback = async () => {
-        const data = await FeedbackService.getAllFeedback() as FeedbackInput[];
-        const sorted = data.sort((a: FeedbackEntry, b: FeedbackEntry) => b.timestamp - a.timestamp);
-        setFeedbackList(sorted);
+        try {
+            const data = await FeedbackService.getAllFeedback() as FeedbackInput[];
+            console.log('[🟢 Feedback List]', data);
+            const sorted = data.sort((a: FeedbackEntry, b: FeedbackEntry) => b.timestamp - a.timestamp);
+            setFeedbackList(sorted);
+        } catch (error) {
+            console.error('[🔥 fetchFeedback error]', error);
+        }
     };
 
     useEffect(() => {
