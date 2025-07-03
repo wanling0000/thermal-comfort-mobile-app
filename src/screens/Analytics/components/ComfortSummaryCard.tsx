@@ -1,68 +1,40 @@
-import React, {useEffect, useState} from 'react';
-import { Card, Text } from 'react-native-paper';
-import { StyleSheet } from 'react-native';
-import {FeedbackService} from "../../../services/api/FeedbackService.ts";
-import {FeedbackInput} from "../../../types/Feedback.ts";
+import {InsightCardEntity} from "../../../types/analytics.ts";
+import {Card, Text} from "react-native-paper";
+import { StyleSheet } from "react-native";
 
-const emojiMap = {
-    '-2': '🥶',
-    '-1': '😟',
-    '0': '😊',
-    '1': '🥵',
-    '2': '🔥',
-};
 
-const labelMap = {
-    '-2': 'Very Cold',
-    '-1': 'Cold',
-    '0': 'Neutral',
-    '1': 'Warm',
-    '2': 'Hot',
-};
+export default function ComfortSummaryCard({ insight }: { insight: InsightCardEntity }) {
+    const { title, value, type } = insight;
 
-export default function ComfortSummaryCard() {
-    const [latestFeedback, setLatestFeedback] = useState<FeedbackInput | null>(null);
-
-    useEffect(() => {
-        const fetchLatest = async () => {
-            const res = await FeedbackService.getLatestFeedback();
-            setLatestFeedback(res);
-        };
-        fetchLatest();
-    }, []);
-
-    if (!latestFeedback) return null;
-
-    const dateStr = new Date(latestFeedback.timestamp).toLocaleString();
-    const level = String(latestFeedback.comfort_level);
+    const getEmoji = () => {
+        if (value === "-") return "❔";
+        if (type === "COMFORT_LEVEL") return value.split(" ")[0] ?? "😊";
+        if (type === "ACTIVITY") return "🏃";
+        if (type === "LOCATION") return "📍";
+        return "";
+    };
 
     return (
         <Card style={styles.card}>
-            <Text style={styles.date}>{dateStr}</Text>
-            <Text style={styles.emoji}>{emojiMap[level]}</Text>
-            <Text style={styles.label}>{labelMap[level]}</Text>
+            <Card.Title title={title} />
+            <Card.Content>
+                <Text style={styles.value}>
+                    {getEmoji()} {value}
+                </Text>
+            </Card.Content>
         </Card>
     );
 }
 
 const styles = StyleSheet.create({
     card: {
-        padding: 16,
-        alignItems: 'center',
-        backgroundColor: '#444',
-        marginBottom: 16,
+        marginHorizontal: 12,
+        marginVertical: 6,
         borderRadius: 12,
     },
-    date: {
-        color: 'white',
-        marginBottom: 8,
-    },
-    emoji: {
-        fontSize: 48,
-        marginBottom: 8,
-    },
-    label: {
-        color: 'white',
-        fontSize: 16,
+    value: {
+        fontSize: 18,
+        fontWeight: "bold",
+        marginTop: 4,
     },
 });

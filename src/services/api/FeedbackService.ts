@@ -1,6 +1,11 @@
 import {request} from "../../utils/request.ts";
 import {FeedbackInput, FeedbackWithReadingInput} from '../../types/Feedback';
 
+interface FeedbackResponse {
+    code: string;
+    info: string;
+    data: FeedbackInput[];
+}
 export const FeedbackService = {
     submitFeedbackWithReading: async (input: FeedbackWithReadingInput) => {
         return request('/api/v1/feedback/submit-with-reading', {
@@ -9,39 +14,16 @@ export const FeedbackService = {
         });
     },
 
-    getAllFeedback: async () => {
-        console.log('[📡 call /api/v1/feedback/all]');
-        // return request('/api/v1/feedback/all', {
-        //     method: 'GET',
-        // });
-        return [
-            {
-                feedback_id: 'c932ea90-eb2e-461b-b03a-7b86d98179fa',
-                user_id: 'admin',
-                timestamp: new Date('2025-05-23T01:23:54.746Z').getTime(),
-                comfort_level: 0,
-                feedback_type: 'quick',
-                notes: null,
-                location_display_name: 'Greenfields Road',
-                raw_coordinates: {
-                    latitude: 53.28596538772052,
-                    longitude: -9.073620818030198,
-                },
-            },
-            {
-                feedback_id: 'abc123',
-                user_id: 'admin',
-                timestamp: new Date('2025-05-23T18:00:00Z').getTime(),
-                comfort_level: 2,
-                feedback_type: 'quick',
-                notes: null,
-                location_display_name: 'City Center Plaza',
-                raw_coordinates: {
-                    latitude: 53.27,
-                    longitude: -9.05,
-                },
-            },
-        ];
+    getFeedbackByMonth: async (year: number, month: number): Promise<FeedbackInput[]> => {
+        const res = await request(`/api/v1/feedback/by-month?year=${year}&month=${month}`, {
+            method: 'GET',
+        });
+        // res 是 { code, info, data }，但 request() 内部不处理结构，所以这里解包
+        if (!res || !Array.isArray(res.data)) {
+            throw new Error('[getAllFeedback] response.data is not an array');
+        }
+
+        return res.data;
     },
 
     getLatestFeedback: async (): Promise<FeedbackInput> => {

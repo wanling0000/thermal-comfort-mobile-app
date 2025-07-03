@@ -7,4 +7,5 @@ export type EnvironmentalReading = {
     humidity: number;
     timestamp: number; // Unix timestamp in milliseconds
     location?: LocationPreview | null;
+    userId: string;
 };

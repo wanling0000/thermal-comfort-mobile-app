@@ -11,9 +11,8 @@ import {
     useTheme, Dialog,
 } from 'react-native-paper';
 import Icon from "@react-native-vector-icons/material-design-icons";
-import {useLocation} from "../../../services/location/useLocation.ts";
 import {UserLocationService} from "../../../services/api/UserLocationService.ts";
-import {UserLocationTagInput} from "../../../types/Location.ts";
+import {LocationPreview, UserLocationTagInput} from "../../../types/Location.ts";
 
 const defaultTags = ['Home', 'Office', 'Lab'];
 
@@ -22,14 +21,16 @@ interface Props {
     onClose: () => void;
     onSubmit: (tag: string) => void;
     currentDisplayName?: string;
+    userId: string;
+    location: LocationPreview | null;
 }
 
-const EditLocationModal = ({ visible, onClose, onSubmit, currentDisplayName }: Props) => {
+const EditLocationModal = ({ visible, onClose, onSubmit, currentDisplayName, location }: Props) => {
     const [customTag, setCustomTag] = useState('');
     const [customTags, setCustomTags] = useState<string[]>([]);
     const [selectedTag, setSelectedTag] = useState<string | null>(null);
     const theme = useTheme();
-    const { location } = useLocation();
+
     const [confirmVisible, setConfirmVisible] = useState(false);
     const [pendingTag, setPendingTag] = useState<string | null>(null);
 

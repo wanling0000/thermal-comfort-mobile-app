@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Button } from 'react-native-paper';
+import { SegmentedButtons } from 'react-native-paper';
+
 type TabOption = 'day' | 'week' | 'month' | 'year';
 
 export default function AnalysisTabBar({
@@ -10,32 +11,37 @@ export default function AnalysisTabBar({
     selectedTab: TabOption;
     onSelectTab: (tab: TabOption) => void;
 }) {
-    const tabs: TabOption[] = ['day', 'week', 'month', 'year'];
-
     return (
         <View style={styles.container}>
-            {tabs.map(tab => (
-                <Button
-                    key={tab}
-                    mode={tab === selectedTab ? 'contained' : 'outlined'}
-                    onPress={() => onSelectTab(tab)}
-                    style={styles.button}
-                >
-                    {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                </Button>
-            ))}
+            <SegmentedButtons
+                value={selectedTab}
+                onValueChange={(value: TabOption) => onSelectTab(value)}
+                buttons={[
+                    { value: 'day', label: 'Daily' },
+                    { value: 'week', label: 'Weekly' },
+                    { value: 'month', label: 'Monthly' },
+                    { value: 'year', label: 'Yearly' },
+                ]}
+                style={styles.segmented}
+                theme={{
+                    // 让 label 字号更小
+                    fonts: {
+                        labelLarge: {
+                            fontSize: 10, // ✅ 字号压缩
+                        },
+                    },
+                }}
+            />
         </View>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
         marginBottom: 16,
     },
-    button: {
-        flex: 1,
-        marginHorizontal: 4,
+    segmented: {
+        alignSelf: 'center', // 居中显示
+        maxWidth: '95%',       // ✅ 限宽防止撑满
     },
 });

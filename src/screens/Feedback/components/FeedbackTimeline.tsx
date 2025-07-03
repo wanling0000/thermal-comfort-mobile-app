@@ -40,13 +40,11 @@ export default function FeedbackTimeline({
         return {
             date: dayTimestamp,
             data: entries.map(entry => ({
-                title:
-                    entry.feedback_type === 'detailed'
-                        ? entry.notes ?? 'No notes'
-                        : emojiMap[entry.comfort_level?.toString() as keyof typeof emojiMap] ?? '📝',
-                subtitle: entry.location_display_name ?? '',
+                title: emojiMap[entry.comfort_level] ?? '📝',
+            subtitle: entry.location_display_name ?? '',
                 date: entry.timestamp,
-            })),
+            }))
+
         };
     });
 

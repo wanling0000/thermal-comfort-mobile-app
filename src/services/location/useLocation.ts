@@ -3,13 +3,14 @@ import { PermissionsAndroid, Platform } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
 import {LocationPreview} from "../../types/Location.ts";
 import {reverseGeocode} from "./reverseGeocode.ts";
+import {UserLocationService} from "../api/UserLocationService.ts";
 
 type UseLocationResult = {
     location: LocationPreview | null;
     setCustomTag: (tag: string | null) => void;
 };
 
-export function useLocation(): UseLocationResult {
+export function useLocation(userId: string): UseLocationResult {
     const [location, setLocation] = useState<LocationPreview | null>(null);
     const lastLocationRef = useRef<LocationPreview | null>(null);
     const customTagRef = useRef<string | undefined>(undefined);
@@ -61,13 +62,31 @@ export function useLocation(): UseLocationResult {
                 return;
             }
 
-            const displayName = await reverseGeocode(latitude, longitude);
+
+            // 获取所有自定义标签
+            let matchedTag: LocationPreview | null = null;
+            try {
+                const tags: LocationPreview[] = await UserLocationService.getUserLocationPreviews(userId);
+
+                matchedTag = tags.find((tag) => {
+                    const dLat = tag.latitude - latitude;
+                    const dLon = tag.longitude - longitude;
+                    const distance = Math.sqrt(dLat * dLat + dLon * dLon) * 111000; // rough estimate
+                    return distance < 10; // 10 米以内认为命中
+                }) ?? null;
+            } catch (e) {
+                console.warn('[useLocation] Failed to fetch user tags', e);
+            }
+
+            // 反地理编码作为兜底
+            const displayName = matchedTag?.displayName ?? await reverseGeocode(latitude, longitude);
+
             const newLoc: LocationPreview = {
                 latitude,
                 longitude,
                 displayName,
-                customTag: customTagRef.current,
-                isCustom: !!customTagRef.current,
+                customTag: matchedTag?.customTag,
+                isCustom: !!matchedTag,
             };
 
             lastLocationRef.current = newLoc; // 更新引用
@@ -116,7 +135,7 @@ export function useLocation(): UseLocationResult {
 
         initLocation();
 
-    }, []);
+    }, [userId]);
 
     return {
         location,

@@ -1,13 +1,36 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-// 这里只做占位，未来可用 Recharts 或 Victory Native 图表库
+import type { ComfortChartProps } from '../../../types/analytics.ts';
+import DayChart from "./DayChart.tsx";
 
-export default function ComfortChart({ tab }: { tab: string }) {
-    return (
-        <View style={styles.chartContainer}>
-            <Text>📈 Chart Placeholder for {tab.toUpperCase()}</Text>
-        </View>
-    );
+export default function ComfortChart({ tab, data }: ComfortChartProps) {
+    if (!data || data.length === 0) {
+        return (
+            <View style={styles.chartContainer}>
+                <Text>No data available for {tab.toUpperCase()}</Text>
+            </View>
+        );
+    }
+
+    switch (tab) {
+        case 'day':
+            return <DayChart data={data} />;
+
+        case 'week':
+        case 'month':
+        // case 'year':
+        //     return <TrendChart data={data} tab={tab} />;
+        //
+        // case 'heatmap':
+        //     return <HeatmapChart data={data} />;
+
+        default:
+            return (
+                <View style={styles.chartContainer}>
+                    <Text>Unsupported tab: {tab}</Text>
+                </View>
+            );
+    }
 }
 
 const styles = StyleSheet.create({

@@ -8,4 +8,10 @@ export const UserLocationService = {
             body: JSON.stringify(input),
         });
     },
+
+    getUserLocationPreviews: async (userId: string) => {
+        return request(`/api/v1/user-location-tags/preview?userId=${userId}`, {
+            method: 'GET',
+        });
+    },
 };

@@ -10,10 +10,12 @@ import {SensorData} from "../../../types/SensorData.ts";
 import {assembleEnvironmentalReading} from "../../../services/assemble/assembleEnvironmentalReading.ts";
 
 const FeedbackCard = ({
+                          userId,
                           location,
                           onEditLocation,
                           sensor,
                       }: {
+    userId: string;
     location: LocationPreview;
     onEditLocation: (newTag: string) => void;
     sensor: SensorData | null;
@@ -140,6 +142,8 @@ const FeedbackCard = ({
                     onEditLocation(tag);
                 }}
                 currentDisplayName={location.displayName}
+                userId={userId}
+                location={location}
             />
         </>
     );

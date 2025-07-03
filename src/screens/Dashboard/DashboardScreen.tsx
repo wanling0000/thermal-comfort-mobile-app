@@ -12,7 +12,9 @@ import {environmentalBuffer} from "../../services/environment/environmentalDataB
 
 const DashboardScreen = () => {
     const { summary, primarySensor, sensorDataList } = usePrimarySensorSummary();
-    const { location, setCustomTag } = useLocation();
+
+    const userId = 'admin'; // TODO:uid
+    const { location, setCustomTag } = useLocation(userId);
     const handleEditLocation = (newTag: string) => {
         setCustomTag(newTag); // 通过 ref 更新 customTag
     };
@@ -42,6 +44,7 @@ const DashboardScreen = () => {
                 {location && (
                     <>
                         <FeedbackCard
+                            userId={userId}
                             location={location}
                             onEditLocation={handleEditLocation}
                             sensor={primarySensor}
