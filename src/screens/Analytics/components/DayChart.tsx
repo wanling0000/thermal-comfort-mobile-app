@@ -1,158 +1,236 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import React from 'react';
+import { View, Dimensions, ScrollView, Text } from 'react-native';
+import { LineChart, CurveType } from 'react-native-gifted-charts';
+import { DailyChartPoint } from '../../../types/analytics';
 
-import { Surface } from 'react-native-paper';
+const TEMP_COLOR = 'red';
+const HUMIDITY_COLOR = 'blue';
 
-type Feedback = {
-    emoji: string;
-    notes?: string;
-    activity?: string;
-};
-
-export type DailyChartPoint = {
-    timestamp: number; // milliseconds
-    temperature: number;
-    humidity: number;
-    feedback: Feedback | null;
-};
+const emojiOptions = [
+    { value: -2, emoji: '🥶', label: 'Too Cold' },
+    { value: -1, emoji: '🧊', label: 'Cold' },
+    { value: 0, emoji: '😊', label: 'Comfortable' },
+    { value: 1, emoji: '🌤️', label: 'Warm' },
+    { value: 2, emoji: '🥵', label: 'Too Hot' },
+];
 
 export default function DayChart({ data }: { data: DailyChartPoint[] }) {
-    const [selectedPoint, setSelectedPoint] = useState<DailyChartPoint | null>(null);
+    if (!data || data.length === 0) return null;
 
-    const temperatureData = data.map((d) => ({
-        x: new Date(d.timestamp),
-        y: d.temperature,
-        original: d,
+    console.log('DayChart: ', data);
+
+    const screenWidth = Dimensions.get('window').width;
+    const chartHeight = 240;
+
+    /**
+     * Step 1: 去重 timestamp
+     * 优先保留含 feedback 的读数；否则保留任意一个。
+     */
+    const deduplicatedDataMap = new Map<number, DailyChartPoint>();
+    for (const reading of data) {
+        const existing = deduplicatedDataMap.get(reading.timestamp);
+        if (!existing) {
+            deduplicatedDataMap.set(reading.timestamp, reading);
+        } else if (!existing.feedback && reading.feedback) {
+            deduplicatedDataMap.set(reading.timestamp, reading);
+        }
+    }
+    const deduplicatedData = Array.from(deduplicatedDataMap.values());
+
+    const spacing = 24;
+    const contentWidth = spacing * deduplicatedData.length;
+
+    /**
+     * Step 2: 构造温度数据（带 emoji 和横坐标 label）
+     */
+    const temperatureData = deduplicatedData.map((reading, index) => {
+        const date = new Date(reading.timestamp);
+        const hourLabel = date.toLocaleTimeString('en-GB', {
+            hour: '2-digit',
+            minute: '2-digit',
+            timeZone: 'UTC',
+            hour12: false,
+        });
+
+        const emoji =
+            reading.feedback?.comfort_level != null
+                ? emojiOptions.find((e) => e.value === reading.feedback.comfort_level)?.emoji
+                : null;
+
+        return {
+            value: reading.temperature,
+            label: index % 6 === 0 ? hourLabel : '',
+            showXAxisIndex: index % 6 === 0,
+            dataPointLabelComponent: emoji
+                ? () => <Text style={{ fontSize: 16 }}>{emoji}</Text>
+                : undefined,
+        };
+    });
+
+    const humidityData = deduplicatedData.map((reading) => ({
+        value: reading.humidity,
     }));
 
-    const humidityData = data.map((d) => ({
-        x: new Date(d.timestamp),
-        y: d.humidity,
-        original: d,
-    }));
+    const readingAtIndex = (index: number): DailyChartPoint | undefined => {
+        return deduplicatedData[index];
+    };
 
-    return (
-        <Surface style={styles.card}>
-            <Text style={styles.title}>📊 Daily Temperature & Humidity ({data.length} points)</Text>
+    /**
+     * Tooltip 配置
+     */
+    const pointerConfig = {
+        radius: 4,
+        pointer1Color: TEMP_COLOR,
+        pointer2Color: HUMIDITY_COLOR,
+        showPointerStrip: true,
+        pointerStripColor: '#aaa',
+        stripOverPointer: true,
+        pointerLabelComponent: (items: any[], secondaryItem: any, index: number) => {
+            const reading = readingAtIndex(index);
+            if (!reading) return null;
 
-            <VictoryChart
-                theme={VictoryTheme.clean}
-            >
-                <VictoryLine
-                    interpolation="natural"
-                    data={sampleData}
-                />
-            </VictoryChart>
-            <VictoryChart>
-                theme={VictoryTheme.material}
-                scale={{ x: 'time' }}
-                containerComponent={
-                    <VictoryVoronoiContainer
-                        labels={({ datum }) =>
-                            `Time: ${datum.x.getHours()}:00\nTemp: ${datum.original.temperature}°C\nHumidity: ${datum.original.humidity}%${
-                                datum.original.feedback
-                                    ? `\nFeedback: ${datum.original.feedback.emoji} ${datum.original.feedback.notes || ''}`
-                                    : ''
-                            }`
-                        }
-                        labelComponent={
-                            <VictoryTooltip
-                                cornerRadius={4}
-                                flyoutStyle={{ fill: 'white', stroke: '#ddd' }}
-                                style={{ fontSize: 12 }}
-                            />
-                        }
-                        onActivated={(points) => {
-                            const first = points?.[0]?.original;
-                            if (first?.feedback) {
-                                setSelectedPoint(first);
-                            } else {
-                                setSelectedPoint(null);
-                            }
-                        }}
-                    />
-                }
-            >
-                <VictoryAxis
-                    tickFormat={(t) => `${new Date(t).getHours()}h`}
-                    style={{ tickLabels: { fontSize: 10 } }}
-                />
-                <VictoryAxis
-                    dependentAxis
-                    tickFormat={(t) => `${t}°`}
-                    style={{ tickLabels: { fontSize: 10, fill: 'red' } }}
-                />
-                <VictoryLine
-                    data={temperatureData}
-                    style={{ data: { stroke: 'red' } }}
-                />
-                <VictoryLine
-                    data={humidityData}
-                    style={{ data: { stroke: 'blue' } }}
-                />
+            const time = new Date(reading.timestamp).toLocaleTimeString('en-GB', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false,
+                timeZone: 'UTC',
+            });
 
-                {/* Feedback reference lines */}
-                {data
-                    .filter((d) => d.feedback)
-                    .map((d, idx) => (
-                        <VictoryLine
-                            key={`ref-${idx}`}
-                            data={[
-                                { x: new Date(d.timestamp), y: 0 },
-                                { x: new Date(d.timestamp), y: 100 },
-                            ]}
-                            style={{
-                                data: {
-                                    stroke: 'green',
-                                    strokeDasharray: '4,2',
-                                    strokeWidth: 1,
-                                },
-                            }}
-                            labels={['📝']}
-                            labelComponent={
-                                <VictoryLabel
-                                    dy={-5}
-                                    style={{ fill: 'green', fontSize: 14 }}
-                                />
-                            }
-                        />
-                    ))}
-            </VictoryChart>
+            const emoji =
+                reading.feedback?.comfort_level != null
+                    ? emojiOptions.find((e) => e.value === reading.feedback.comfort_level)?.emoji
+                    : null;
 
-            {selectedPoint?.feedback && (
-                <View style={styles.feedbackBox}>
-                    <Text style={styles.feedbackText}>
-                        {selectedPoint.feedback.emoji} {selectedPoint.feedback.notes}
-                    </Text>
-                    {selectedPoint.feedback.activity && (
-                        <Text style={styles.feedbackText}>Activity: {selectedPoint.feedback.activity}</Text>
+            return (
+                <View
+                    style={{
+                        backgroundColor: '#fff',
+                        padding: 6,
+                        borderRadius: 6,
+                        borderWidth: 1,
+                        borderColor: '#ccc',
+                    }}
+                >
+                    <Text style={{ fontSize: 12, fontWeight: 'bold' }}>{time} UTC</Text>
+                    <Text style={{ fontSize: 12 }}>🌡 {reading.temperature}°C</Text>
+                    <Text style={{ fontSize: 12 }}>💧 {reading.humidity}%</Text>
+                    {emoji && (
+                        <View style={{ marginTop: 6 }}>
+                            <Text style={{ fontSize: 12, fontWeight: 'bold' }}>Comfort:</Text>
+                            <Text style={{ fontSize: 16 }}>
+                                {emoji}{' '}
+                                {emojiOptions.find((e) => e.emoji === emoji)?.label ?? ''}
+                            </Text>
+                        </View>
                     )}
                 </View>
-            )}
-        </Surface>
+            );
+        },
+        pointerLabelWidth: 80,
+        pointerLabelHeight: 80,
+        autoAdjustPointerLabelPosition: true,
+        persistPointer: true,
+    };
+
+    return (
+        <View
+            style={{
+                flexDirection: 'row',
+                paddingHorizontal: 8,
+                marginTop: 24,
+                width: screenWidth,
+                height: chartHeight + 50,
+            }}
+        >
+            {/* 左侧 Y 轴（温度） */}
+            <View
+                style={{
+                    width: 40,
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                    paddingTop: 4,
+                    paddingBottom: 12,
+                }}
+            >
+                {[...Array(9)].map((_, i) => (
+                    <Text key={i} style={{ fontSize: 10, color: TEMP_COLOR }}>
+                        {40 - i * 5}°C
+                    </Text>
+                ))}
+            </View>
+
+            {/* 中间图表 */}
+            <ScrollView
+                horizontal
+                contentContainerStyle={{
+                    paddingBottom: 20,
+                    paddingRight: 16,
+                }}
+                showsHorizontalScrollIndicator
+            >
+                <View style={{ width: contentWidth }}>
+                    <LineChart
+                        height={chartHeight}
+                        width={contentWidth}
+                        data={temperatureData}
+                        secondaryData={humidityData}
+                        curved
+                        curveType={CurveType.CUBIC}
+                        thickness={2}
+                        color={TEMP_COLOR}
+                        maxValue={40}
+                        stepValue={5}
+                        noOfSections={8}
+                        hideDataPoints={false}
+                        spacing={spacing}
+                        initialSpacing={0}
+                        xAxisColor="#999"
+                        xAxisLabelTextStyle={{
+                            width: 50,
+                            color: '#333',
+                            fontSize: 10,
+                            marginTop: 4,
+                        }}
+                        xAxisIndicesHeight={4}
+                        xAxisIndicesWidth={1}
+                        secondaryLineConfig={{
+                            color: HUMIDITY_COLOR,
+                            curved: true,
+                            thickness: 2,
+                        }}
+                        yAxisTextStyle={{ display: 'none' }}
+                        yAxisColor="transparent"
+                        yAxisThickness={0}
+                        yAxisLabelWidth={0}
+                        secondaryYAxis={{
+                            maxValue: 100,
+                            noOfSections: 5,
+                            roundToDigits: 0,
+                            yAxisColor: 'transparent',
+                            showYAxisIndices: false,
+                        }}
+                        pointerConfig={pointerConfig}
+                    />
+                </View>
+            </ScrollView>
+
+            {/* 右侧 Y 轴（湿度） */}
+            <View
+                style={{
+                    width: 45,
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-end',
+                    paddingTop: 4,
+                    paddingBottom: 12,
+                    marginRight: 24,
+                }}
+            >
+                {[...Array(6)].map((_, i) => (
+                    <Text key={i} style={{ fontSize: 10, color: HUMIDITY_COLOR }}>
+                        {100 - i * 20}%
+                    </Text>
+                ))}
+            </View>
+        </View>
     );
 }
-
-const styles = StyleSheet.create({
-    card: {
-        margin: 12,
-        padding: 12,
-        elevation: 2,
-        borderRadius: 12,
-        backgroundColor: 'white',
-    },
-    title: {
-        fontSize: 16,
-        marginBottom: 8,
-    },
-    feedbackBox: {
-        marginTop: 12,
-        padding: 10,
-        backgroundColor: '#e0f7e9',
-        borderRadius: 8,
-    },
-    feedbackText: {
-        fontSize: 14,
-        color: '#2d3436',
-    },
-});

@@ -1,10 +1,11 @@
 import { AppError } from './AppError';
 import { log, LogLevel } from './Logger';
-import { apiHostUrl, enableMock } from '../config/api';
+import { apiHostUrl } from '../config/api';
 
-export async function request(endpoint: string, options: RequestInit = {}) {
+export async function request<T = any>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${apiHostUrl}${endpoint}`;
 
+    console.log("👉 Fetching from:", url);
     try {
         const response = await fetch(url, {
             ...options,
@@ -24,7 +25,7 @@ export async function request(endpoint: string, options: RequestInit = {}) {
             );
         }
 
-        return data;
+        return data as T;
     } catch (error) {
         log(`Request to ${url} failed: ${error}`, LogLevel.Error, 'Request');
         if (error instanceof AppError) {

@@ -4,11 +4,15 @@ import { StyleSheet } from "react-native";
 
 
 export default function ComfortSummaryCard({ insight }: { insight: InsightCardEntity }) {
-    const { title, value, type } = insight;
+    const { title, content, type } = insight;
+    if (content === undefined) {
+        console.warn("InsightCardEntity.value is undefined", insight);
+    }
+
 
     const getEmoji = () => {
-        if (value === "-") return "❔";
-        if (type === "COMFORT_LEVEL") return value.split(" ")[0] ?? "😊";
+        if (content === "-") return "❔";
+        if (type === "COMFORT_LEVEL") return content.split(" ")[0] ?? "😊";
         if (type === "ACTIVITY") return "🏃";
         if (type === "LOCATION") return "📍";
         return "";
@@ -16,10 +20,10 @@ export default function ComfortSummaryCard({ insight }: { insight: InsightCardEn
 
     return (
         <Card style={styles.card}>
-            <Card.Title title={title} />
+            <Card.Title title={title} titleNumberOfLines={2} />
             <Card.Content>
                 <Text style={styles.value}>
-                    {getEmoji()} {value}
+                    {getEmoji()} {content}
                 </Text>
             </Card.Content>
         </Card>

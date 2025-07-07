@@ -14,6 +14,7 @@ export default function ComfortChart({ tab, data }: ComfortChartProps) {
 
     switch (tab) {
         case 'day':
+            console.log("ComfortChart:", tab, data);
             return <DayChart data={data} />;
 
         case 'week':

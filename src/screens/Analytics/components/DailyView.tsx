@@ -13,7 +13,7 @@ export default function DailyView() {
     const [summary, setSummary] = useState<InsightCardEntity[] | null>(null);
     const [loading, setLoading] = useState(true);
 
-    const userId = "dev-user";
+    const userId = "admin";
     const today = new Date().toISOString().slice(0, 10);
 
     useEffect(() => {
@@ -23,9 +23,11 @@ export default function DailyView() {
                     AnalyticsService.getDailyChartData(userId, today),
                     AnalyticsService.getSummary(userId, today, "DAILY"),
                 ]);
+                // console.log("chartData:", chartData);
+                // console.log("summaryRes:", summaryRes);
 
                 setData(chartData);
-                setSummary(summaryRes.insights);
+                setSummary(summaryRes?.data?.insights ?? []);
             } catch (error) {
                 console.error("Failed to fetch daily analytics:", error);
                 setData(null);
@@ -35,7 +37,7 @@ export default function DailyView() {
             }
         };
         fetch();
-    }, []);
+    }, [today]);
 
     if (loading) {
         return <ActivityIndicator style={{ marginTop: 48 }} />;
