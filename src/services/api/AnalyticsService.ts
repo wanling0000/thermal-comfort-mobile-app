@@ -9,9 +9,9 @@ import {request} from "../../utils/request.ts";
 import {ApiResponse} from "../../types/api.ts";
 
 export const AnalyticsService = {
-    getDailyChartData: async (userId: string, date: string): Promise<DailyChartPoint[]> => {
+    getDailyChartData: async (date: string): Promise<DailyChartPoint[]> => {
         const res = await request<ApiResponse<DailyChartPoint[]>>(
-            `/api/analytics/daily?userId=${userId}&date=${date}`,
+            `/api/analytics/daily?date=${date}`,
             { method: 'GET' }
         );
         return res.data;
@@ -37,11 +37,10 @@ export const AnalyticsService = {
     },
 
     getYearlyStats: async (
-        userId: string,
         year: number
     ): Promise<DailyComfortStatDTO[]> => {
         const res = await request<ApiResponse<YearlyComfortStatsDTO>>(
-            `/api/analytics/yearly?userId=${userId}&year=${year}`,
+            `/api/analytics/yearly?year=${year}`,
             { method: 'GET' }
         );
 
@@ -59,11 +58,10 @@ export const AnalyticsService = {
 
 
     getSummary: async (
-        userId: string,
         date: string,
         resolution: Resolution
     ): Promise<ApiResponse<SummaryInsightResponseDTO>> => {
-        const url = `/api/analytics/summary?userId=${userId}&date=${date}&resolution=${resolution}`;
+        const url = `/api/analytics/summary?date=${date}&resolution=${resolution}`;
         return request(url, { method: 'GET' });
     },
 };

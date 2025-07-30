@@ -53,8 +53,8 @@ export default function DayChart({ data }: { data: DailyChartPoint[] }) {
         });
 
         const emoji =
-            reading.feedback?.comfort_level != null
-                ? emojiOptions.find((e) => e.value === reading.feedback.comfort_level)?.emoji
+            reading.feedback?.comfortLevel != null
+                ? emojiOptions.find((e) => e.value === reading.feedback.comfortLevel)?.emoji
                 : null;
 
         return {
@@ -97,8 +97,8 @@ export default function DayChart({ data }: { data: DailyChartPoint[] }) {
             });
 
             const emoji =
-                reading.feedback?.comfort_level != null
-                    ? emojiOptions.find((e) => e.value === reading.feedback.comfort_level)?.emoji
+                reading.feedback?.comfortLevel != null
+                    ? emojiOptions.find((e) => e.value === reading.feedback.comfortLevel)?.emoji
                     : null;
 
             return (

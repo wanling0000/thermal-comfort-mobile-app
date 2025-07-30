@@ -21,7 +21,6 @@ interface Props {
     onClose: () => void;
     onSubmit: (tag: string) => void;
     currentDisplayName?: string;
-    userId: string;
     location: LocationPreview | null;
 }
 

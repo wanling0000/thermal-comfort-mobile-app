@@ -1,7 +1,7 @@
 import {useState, useEffect, useRef, useCallback} from 'react';
 import { PermissionsAndroid, Platform } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
-import {LocationPreview} from "../../types/Location.ts";
+import {LocationPreview, mapServerTagToLocationPreview} from "../../types/Location.ts";
 import {reverseGeocode} from "./reverseGeocode.ts";
 import {UserLocationService} from "../api/UserLocationService.ts";
 
@@ -10,7 +10,7 @@ type UseLocationResult = {
     setCustomTag: (tag: string | null) => void;
 };
 
-export function useLocation(userId: string): UseLocationResult {
+export function useLocation(): UseLocationResult {
     const [location, setLocation] = useState<LocationPreview | null>(null);
     const lastLocationRef = useRef<LocationPreview | null>(null);
     const customTagRef = useRef<string | undefined>(undefined);
@@ -66,14 +66,23 @@ export function useLocation(userId: string): UseLocationResult {
             // 获取所有自定义标签
             let matchedTag: LocationPreview | null = null;
             try {
-                const tags: LocationPreview[] = await UserLocationService.getUserLocationPreviews(userId);
+                const rawTags = await UserLocationService.getUserLocationPreviews();
 
-                matchedTag = tags.find((tag) => {
-                    const dLat = tag.latitude - latitude;
-                    const dLon = tag.longitude - longitude;
-                    const distance = Math.sqrt(dLat * dLat + dLon * dLon) * 111000; // rough estimate
-                    return distance < 10; // 10 米以内认为命中
-                }) ?? null;
+                const tags: LocationPreview[] = rawTags.map(mapServerTagToLocationPreview);
+                // 优先使用手动设定的 customTag
+                if (customTagRef.current) {
+                    matchedTag = tags.find(tag => tag.customTag === customTagRef.current) ?? null;
+                }
+
+                // 如果没有手动设定，则自动匹配坐标
+                if (!matchedTag) {
+                    matchedTag = tags.find((tag) => {
+                        const dLat = tag.latitude - latitude;
+                        const dLon = tag.longitude - longitude;
+                        const distance = Math.sqrt(dLat * dLat + dLon * dLon) * 111000;
+                        return distance < 10;
+                    }) ?? null;
+                }
             } catch (e) {
                 console.warn('[useLocation] Failed to fetch user tags', e);
             }
@@ -89,8 +98,14 @@ export function useLocation(userId: string): UseLocationResult {
                 isCustom: !!matchedTag,
             };
 
+            if (matchedTag?.customTag) {
+                customTagRef.current = matchedTag.customTag;
+                console.log('[useLocation] ✅ Updated customTagRef to:', customTagRef.current);
+            }
+
             lastLocationRef.current = newLoc; // 更新引用
             setLocation(newLoc);
+            console.log('[useLocation] 📦 Final location object:', newLoc);
         }
 
         async function initLocation() {
@@ -135,7 +150,7 @@ export function useLocation(userId: string): UseLocationResult {
 
         initLocation();
 
-    }, [userId]);
+    }, []);
 
     return {
         location,

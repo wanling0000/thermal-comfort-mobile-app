@@ -4,26 +4,26 @@ import { Button } from "react-native-paper";
 import { FeedbackService } from "../../services/api/FeedbackService.ts";
 import FeedbackTimeline from "./components/FeedbackTimeline.tsx";
 import FeedbackFormModal from "./components/FeedbackFormModal.tsx";
-import { FeedbackInput } from '../../types/Feedback.ts';
+import {BaseFeedbackResponse, FeedbackInput, FeedbackResponse} from '../../types/Feedback.ts';
 import {useLocation} from "../../services/location/useLocation.ts";
 import {assembleEnvironmentalReading} from "../../services/assemble/assembleEnvironmentalReading.ts";
 import {usePrimarySensorSummary} from "../../hooks/usePrimarySensorSummary.ts";
 import MonthPicker from "react-native-month-year-picker";
-
-type FeedbackEntry = FeedbackInput;
+import {useFeedbackRefresh} from "../../context/FeedbackRefreshContext.tsx";
+import UpdateFeedbackFormModal from "./components/UpdateFeedbackFormModal.tsx";
 
 export default function FeedbackScreen() {
 
-    const userId = 'admin'; // TODO： uid
-    // const userId = auth().currentUser?.uid ?? 'admin';
-
     const [modalVisible, setModalVisible] = useState(false);
-    const [feedbackList, setFeedbackList] = useState<FeedbackEntry[]>([]);
+    const [feedbackList, setFeedbackList] = useState<FeedbackResponse[]>([]);
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [showPicker, setShowPicker] = useState(false);
 
     const { primarySensor } = usePrimarySensorSummary();
-    const { location } = useLocation(userId);
+    const { location } = useLocation();
+
+    const { lastRefreshTime } = useFeedbackRefresh();
+    const [selectedFeedback, setSelectedFeedback] = useState<FeedbackResponse | null>(null);
 
     const reading = primarySensor && location
         ? assembleEnvironmentalReading(primarySensor, location)
@@ -34,8 +34,13 @@ export default function FeedbackScreen() {
             const year = selectedDate.getFullYear();
             const month = selectedDate.getMonth() + 1;
             const list = await FeedbackService.getFeedbackByMonth(year, month);
-            const sorted = list.sort((a, b) => b.timestamp - a.timestamp);
+
+            const sorted = list.sort(
+                (a, b) => (b as any).timestamp - (a as any).timestamp
+            );
             setFeedbackList(sorted);
+            console.log("fetchFeedback:", sorted)
+
         } catch (error) {
             console.error('[🔥 fetchFeedback error]', error);
         }
@@ -44,7 +49,7 @@ export default function FeedbackScreen() {
 
     useEffect(() => {
         fetchFeedback();
-    }, [fetchFeedback]);
+    }, [fetchFeedback, lastRefreshTime]);
 
     const onValueChange = (event: any, date?: Date) => {
         setShowPicker(false);
@@ -88,18 +93,40 @@ export default function FeedbackScreen() {
             <FeedbackTimeline
                 feedbackList={feedbackList}
                 onRefresh={fetchFeedback}
+                onSelectFeedback={(feedback: FeedbackResponse) => {
+                    setSelectedFeedback(feedback);
+                }}
             />
 
             <FeedbackFormModal
                 visible={modalVisible}
                 reading={reading}
-                onDismiss={() => setModalVisible(false)}
+                onDismiss={() => {
+                    setModalVisible(false);
+                }}
                 onSubmit={async (payload) => {
                     await FeedbackService.submitFeedbackWithReading(payload);
                     await fetchFeedback();
                     setModalVisible(false);
                 }}
             />
+
+            <UpdateFeedbackFormModal
+                visible={selectedFeedback !== null}
+                feedback={selectedFeedback}
+                onDismiss={() => setSelectedFeedback(null)}
+                onUpdate={async (updated) => {
+                    await FeedbackService.updateFeedback(updated);
+                    await fetchFeedback();
+                    setSelectedFeedback(null);
+                }}
+                onDelete={async (id) => {
+                    await FeedbackService.deleteFeedback(id);
+                    await fetchFeedback();
+                    setSelectedFeedback(null);
+                }}
+            />
+
 
         </View>
     );

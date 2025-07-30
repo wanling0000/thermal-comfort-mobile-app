@@ -6,6 +6,8 @@ import FeedbackScreen from "../screens/Feedback/FeedbackScreen";
 import AnalyticsScreen from "../screens/Analytics/AnalyticsScreen";
 import TestScreen from "../screens/Test/TestScreen.tsx";
 
+// run: npx react-native start --port=8088 --reset-cache
+
 const Tab = createBottomTabNavigator();
 
 export function AppNavigator() {

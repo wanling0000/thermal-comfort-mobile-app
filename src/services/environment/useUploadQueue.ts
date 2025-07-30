@@ -21,9 +21,9 @@ const MAX_RETRY_INTERVAL = 15 * 60 * 1000; // Max backoff to 15 minutes
 // const DEBUG_UPLOAD = true;
 const DEBUG_UPLOAD = false;
 
-export function useUploadQueue(userId: string) {
+export function useUploadQueue() {
     const { sensorDataList } = useBLEBridge();
-    const { location } = useLocation(userId);
+    const { location } = useLocation();
     const retryIntervalRef = useRef(UPLOAD_INTERVAL);
 
     // ✅ 每次 BLE 扫描更新，将数据喂入全局 buffer
@@ -32,8 +32,7 @@ export function useUploadQueue(userId: string) {
 
         const newReadings = sensorDataList.map(sensor =>
             ({
-                ...assembleEnvironmentalReading(sensor, location),
-                userId, // 注入当前用户 ID
+                ...assembleEnvironmentalReading(sensor, location)
             })
         );
 
@@ -41,7 +40,7 @@ export function useUploadQueue(userId: string) {
             console.log('[UploadQueue] ➕ Add reading to buffer:', reading);
             environmentalBuffer.addReading(reading);
         });
-    }, [sensorDataList, location, userId]);
+    }, [sensorDataList, location]);
 
     // ✅ 定时尝试上传
     useEffect(() => {
@@ -65,7 +64,7 @@ export function useUploadQueue(userId: string) {
                 console.log('[UploadQueue] ⏰ Next upload in', retryIntervalRef.current / 1000, 'seconds');
 
                 if (!DEBUG_UPLOAD) {
-                    await EnvironmentalReadingService.uploadEnvironmentalReadings(toUpload, userId);
+                    await EnvironmentalReadingService.uploadEnvironmentalReadings(toUpload);
                     // ✅ 展示池不用删，上传池已清除
                 }
 
@@ -83,7 +82,7 @@ export function useUploadQueue(userId: string) {
 
         scheduleNext();
         return () => clearTimeout(timeoutId);
-    }, [userId]);
+    }, []);
 
     return {};
 }

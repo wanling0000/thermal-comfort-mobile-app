@@ -12,7 +12,7 @@ export default function ComfortSummaryCard({ insight }: { insight: InsightCardEn
 
     const getEmoji = () => {
         if (content === "-") return "❔";
-        if (type === "COMFORT_LEVEL") return content.split(" ")[0] ?? "😊";
+        if (type === "COMFORT_LEVEL") return "📊";
         if (type === "ACTIVITY") return "🏃";
         if (type === "LOCATION") return "📍";
         return "";

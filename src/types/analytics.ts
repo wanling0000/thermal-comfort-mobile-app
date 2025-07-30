@@ -1,5 +1,3 @@
-// 用于分析页面的类型定义
-
 import {ApiResponse} from "./api.ts";
 
 export type FeedbackSnapshot = {

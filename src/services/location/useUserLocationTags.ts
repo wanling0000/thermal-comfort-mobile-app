@@ -8,7 +8,7 @@ export function useUserLocationTags(userId: string) {
     useEffect(() => {
         if (!userId) return;
 
-        UserLocationService.getUserLocationPreviews(userId)
+        UserLocationService.getUserLocationPreviews()
             .then(setTags)
             .catch(console.error);
     }, [userId]);

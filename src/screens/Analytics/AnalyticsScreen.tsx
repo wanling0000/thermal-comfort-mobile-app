@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet} from 'react-native';
 import AnalysisTabBar from './components/AnalysisTabBar';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import DailyView from "./components/DailyView.tsx";

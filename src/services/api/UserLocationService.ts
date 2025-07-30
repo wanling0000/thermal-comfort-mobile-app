@@ -9,8 +9,8 @@ export const UserLocationService = {
         });
     },
 
-    getUserLocationPreviews: async (userId: string) => {
-        return request(`/api/v1/user-location-tags/preview?userId=${userId}`, {
+    getUserLocationPreviews: async () => {
+        return request(`/api/v1/user-location-tags/preview`, {
             method: 'GET',
         });
     },

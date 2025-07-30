@@ -1,11 +1,12 @@
 import {request} from "../../utils/request.ts";
-import {FeedbackInput, FeedbackWithReadingInput} from '../../types/Feedback';
+import {FeedbackResponse, FeedbackWithReadingInput} from '../../types/Feedback';
 
-interface FeedbackResponse {
+interface ApiResponse<T> {
     code: string;
     info: string;
-    data: FeedbackInput[];
+    data: T;
 }
+
 export const FeedbackService = {
     submitFeedbackWithReading: async (input: FeedbackWithReadingInput) => {
         return request('/api/v1/feedback/submit-with-reading', {
@@ -14,23 +15,39 @@ export const FeedbackService = {
         });
     },
 
-    getFeedbackByMonth: async (year: number, month: number): Promise<FeedbackInput[]> => {
-        const res = await request(`/api/v1/feedback/by-month?year=${year}&month=${month}`, {
-            method: 'GET',
-        });
-        // res 是 { code, info, data }，但 request() 内部不处理结构，所以这里解包
+    getFeedbackByMonth: async (year: number, month: number): Promise<FeedbackResponse[]> => {
+        const res: ApiResponse<FeedbackResponse[]> = await request(
+            `/api/v1/feedback/by-month?year=${year}&month=${month}`,
+            { method: 'GET' }
+        );
+
         if (!res || !Array.isArray(res.data)) {
-            throw new Error('[getAllFeedback] response.data is not an array');
+            throw new Error('[getFeedbackByMonth] response.data is not an array');
         }
 
         return res.data;
     },
 
-    getLatestFeedback: async (): Promise<FeedbackInput> => {
-        return request('/api/v1/feedback/latest', {
-            method: 'GET',
+    getLatestFeedback: async (): Promise<FeedbackResponse[]> => {
+        const res: ApiResponse<FeedbackResponse[]> = await request(
+            '/api/v1/feedback/latest',
+            { method: 'GET' }
+        );
+
+        return res.data;
+    },
+
+    updateFeedback: async (input: FeedbackResponse) => {
+        return request('/api/v1/feedback/update', {
+            method: 'PUT',
+            body: JSON.stringify(input),
         });
     },
 
+    deleteFeedback: async (id: string | number) => {
+        return request(`/api/v1/feedback/delete/${id}`, {
+            method: 'DELETE',
+        });
+    },
 };
 

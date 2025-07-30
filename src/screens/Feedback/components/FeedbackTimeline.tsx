@@ -1,8 +1,7 @@
 import React from 'react';
-import Timeline from 'react-native-beautiful-timeline';
-import { FeedbackInput } from '../../../types/Feedback';
-import FeedbackItemCard from './FeedbackItemCard';
-
+import {FeedbackInput, FeedbackResponse} from '../../../types/Feedback';
+import Timeline from "../../../components/ui/CustomTimeline/Timeline.tsx";
+import { format, toZonedTime } from 'date-fns-tz';
 
 const emojiOptions = [
     { value: -2, emoji: '🥶', label: 'Too Cold' },
@@ -20,9 +19,11 @@ const emojiMap = Object.fromEntries(
 export default function FeedbackTimeline({
                                              feedbackList,
                                              onRefresh,
+                                             onSelectFeedback,
                                          }: {
-    feedbackList: FeedbackInput[];
+    feedbackList: FeedbackResponse[];
     onRefresh: () => void;
+    onSelectFeedback: (feedback: FeedbackResponse) => void;
 }) {
     const groupedByDay: { [key: string]: FeedbackInput[] } = {};
 
@@ -41,10 +42,11 @@ export default function FeedbackTimeline({
             date: dayTimestamp,
             data: entries.map(entry => ({
                 title: emojiMap[entry.comfort_level] ?? '📝',
-            subtitle: entry.location_display_name ?? '',
+                subtitle: entry.location_display_name ?? '',
                 date: entry.timestamp,
+                displayDate: format(new Date(entry.timestamp), 'yyyy-MM-dd HH:mm'),
+                onPress: () => onSelectFeedback(entry),
             }))
-
         };
     });
 

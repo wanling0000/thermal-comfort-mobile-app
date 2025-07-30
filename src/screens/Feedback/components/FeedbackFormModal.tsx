@@ -21,6 +21,37 @@ type Props = {
     onSubmit: (data: FeedbackWithReadingInput) => void;
 };
 
+const emojiOptions = [
+    { value: -2, emoji: '🥶', label: 'Too Cold' },
+    { value: -1, emoji: '🧊', label: 'Cold' },
+    { value: 0, emoji: '😊', label: 'Comfortable' },
+    { value: 1, emoji: '🌤️', label: 'Warm' },
+    { value: 2, emoji: '🥵', label: 'Too Hot' },
+];
+
+const getAdjustTempLabel = (val: number) => {
+    switch (val) {
+        case -2: return 'Much Cooler';
+        case -1: return 'Slightly Cooler';
+        case 0: return 'No Change';
+        case 1: return 'Slightly Warmer';
+        case 2: return 'Much Warmer';
+        default: return '';
+    }
+};
+
+const getAdjustHumidLabel = (val: number) => {
+    switch (val) {
+        case -2: return 'Much Drier';
+        case -1: return 'Slightly Drier';
+        case 0: return 'No Change';
+        case 1: return 'Slightly More Humid';
+        case 2: return 'Much More Humid';
+        default: return '';
+    }
+};
+
+
 const FeedbackFormModal = ({ visible, reading, onDismiss, onSubmit }: Props) => {
     const [comfortLevel, setComfortLevel] = useState(0);
     const [adjustedTemp, setAdjustedTemp] = useState(0);
@@ -69,7 +100,7 @@ const FeedbackFormModal = ({ visible, reading, onDismiss, onSubmit }: Props) => 
                 <ScrollView contentContainerStyle={styles.scrollContent}>
                     <Title style={styles.title}>Detailed Feedback</Title>
 
-                    <Text>Comfort Level (from 🥶 to 🥵):</Text>
+                    <Text>Comfort Level:</Text>
                     <Slider
                         style={styles.slider}
                         minimumValue={-2}
@@ -78,6 +109,9 @@ const FeedbackFormModal = ({ visible, reading, onDismiss, onSubmit }: Props) => 
                         value={comfortLevel}
                         onValueChange={setComfortLevel}
                     />
+                    <Text style={{ textAlign: 'center', marginBottom: 12 }}>
+                        {emojiOptions.find(opt => opt.value === comfortLevel)?.emoji} {emojiOptions.find(opt => opt.value === comfortLevel)?.label}
+                    </Text>
 
                     <Text>Adjust Temperature:</Text>
                     <Slider
@@ -88,6 +122,9 @@ const FeedbackFormModal = ({ visible, reading, onDismiss, onSubmit }: Props) => 
                         value={adjustedTemp}
                         onValueChange={setAdjustedTemp}
                     />
+                    <Text style={{ textAlign: 'center', marginBottom: 12 }}>
+                        {getAdjustTempLabel(adjustedTemp)}
+                    </Text>
 
                     <Text>Adjust Humidity:</Text>
                     <Slider
@@ -98,6 +135,9 @@ const FeedbackFormModal = ({ visible, reading, onDismiss, onSubmit }: Props) => 
                         value={adjustedHumid}
                         onValueChange={setAdjustedHumid}
                     />
+                    <Text style={{ textAlign: 'center', marginBottom: 12 }}>
+                        {getAdjustHumidLabel(adjustedHumid)}
+                    </Text>
 
                     <Text style={{ marginTop: 12, marginBottom: 4 }}>Activity:</Text>
                     <View style={styles.chipContainer}>

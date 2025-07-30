@@ -8,14 +8,13 @@ import {FeedbackService} from "../../../services/api/FeedbackService.ts";
 import {QuickFeedbackInput} from "../../../types/Feedback.ts";
 import {SensorData} from "../../../types/SensorData.ts";
 import {assembleEnvironmentalReading} from "../../../services/assemble/assembleEnvironmentalReading.ts";
+import {useFeedbackRefresh} from "../../../context/FeedbackRefreshContext.tsx";
 
 const FeedbackCard = ({
-                          userId,
                           location,
                           onEditLocation,
                           sensor,
                       }: {
-    userId: string;
     location: LocationPreview;
     onEditLocation: (newTag: string) => void;
     sensor: SensorData | null;
@@ -30,6 +29,7 @@ const FeedbackCard = ({
         { value: 1, emoji: '🌤️', label: 'Warm' },
         { value: 2, emoji: '🥵', label: 'Too Hot' },
     ];
+    const { triggerRefresh } = useFeedbackRefresh();
 
     return (
         <>
@@ -121,6 +121,7 @@ const FeedbackCard = ({
                                 try {
                                     await FeedbackService.submitFeedbackWithReading(payload);
                                     setSelectedEmoji(null);
+                                    triggerRefresh();
                                     console.log('✅ Feedback with reading submitted');
                                 } catch (err) {
                                     console.error('❌ Submission failed', err);
@@ -142,7 +143,6 @@ const FeedbackCard = ({
                     onEditLocation(tag);
                 }}
                 currentDisplayName={location.displayName}
-                userId={userId}
                 location={location}
             />
         </>

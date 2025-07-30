@@ -7,7 +7,7 @@ export function InsightCard({ insight }: { insight: InsightCardEntity }) {
         <Card style={styles.card}>
             <Card.Title title={insight.title} />
             <Card.Content>
-                <Text style={styles.valueText}>{insight.value}</Text>
+                <Text style={styles.valueText}>{insight.content}</Text>
             </Card.Content>
         </Card>
     );

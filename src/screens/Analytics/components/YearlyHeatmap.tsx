@@ -86,7 +86,7 @@ export default function YearlyComfortHeatmap({ data, year }: Props) {
         const weekIndex = Math.floor(diffDays / 7);
         const scrollX = weekIndex * (cellSize + gap) - 40;
         scrollRef.current?.scrollTo({ x: scrollX > 0 ? scrollX : 0, animated: true });
-    }, [year]);
+    }, [startDate, year]);
 
     return (
         <View style={{ padding: 8 }}>

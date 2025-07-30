@@ -12,16 +12,15 @@ export default function DailyView() {
     const [data, setData] = useState<DailyChartPoint[] | null>(null);
     const [summary, setSummary] = useState<InsightCardEntity[] | null>(null);
     const [loading, setLoading] = useState(true);
-
-    const userId = "admin";
+    
     const today = new Date().toISOString().slice(0, 10);
 
     useEffect(() => {
         const fetch = async () => {
             try {
                 const [chartData, summaryRes] = await Promise.all([
-                    AnalyticsService.getDailyChartData(userId, today),
-                    AnalyticsService.getSummary(userId, today, "DAILY"),
+                    AnalyticsService.getDailyChartData(today),
+                    AnalyticsService.getSummary(today, "DAILY"),
                 ]);
                 // console.log("chartData:", chartData);
                 // console.log("summaryRes:", summaryRes);

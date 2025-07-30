@@ -10,7 +10,6 @@ export default function AggregateView({ type }: { type: 'week' | 'month' }) {
     const [stats, setStats] = useState<ComfortStatisticsDTO | null>(null);
 
     const [summary, setSummary] = useState<InsightCardEntity[] | null>(null);
-    const userId = 'admin';
 
     useEffect(() => {
         const today = new Date().toISOString().split('T')[0];
@@ -19,7 +18,7 @@ export default function AggregateView({ type }: { type: 'week' | 'month' }) {
             try {
                 const [statsData, summaryRes] = await Promise.all([
                     AnalyticsService.getComfortStats(today, type),
-                    AnalyticsService.getSummary(userId, today, type === 'week' ? 'WEEK' : 'MONTH'),
+                    AnalyticsService.getSummary(today, type === 'week' ? 'WEEK' : 'MONTH'),
                 ]);
                 setStats(statsData);
                 setSummary(summaryRes?.data?.insights ?? []);

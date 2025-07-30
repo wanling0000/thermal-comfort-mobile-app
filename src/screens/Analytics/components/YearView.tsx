@@ -3,8 +3,7 @@ import { ActivityIndicator, Text } from 'react-native-paper';
 import { AnalyticsService } from '../../../services/api/AnalyticsService';
 import {DailyComfortStatDTO, InsightCardEntity} from "../../../types/analytics.ts";
 import YearlyHeatmap from "./YearlyHeatmap.tsx";
-import {Dimensions, ScrollView, View} from "react-native";
-import {ContributionGraph} from "react-native-chart-kit";
+import {ScrollView} from "react-native";
 import ComfortSummaryCard from "./ComfortSummaryCard.tsx";
 
 export default function YearView() {
@@ -12,7 +11,6 @@ export default function YearView() {
     const [summary, setSummary] = useState<InsightCardEntity[] | null>(null);
     const [loading, setLoading] = useState(true);
 
-    const userId = 'admin';
     const year = new Date().getFullYear();
     const today = new Date().toISOString().slice(0, 10);
 
@@ -20,8 +18,8 @@ export default function YearView() {
         const fetch = async () => {
             try {
                 const [yearData, summaryRes] = await Promise.all([
-                    AnalyticsService.getYearlyStats(userId, year),
-                    AnalyticsService.getSummary(userId, today, 'YEAR'),
+                    AnalyticsService.getYearlyStats(year),
+                    AnalyticsService.getSummary(today, 'YEAR'),
                 ]);
                 setData(yearData);
                 setSummary(summaryRes?.data?.insights ?? []);
@@ -33,7 +31,7 @@ export default function YearView() {
             }
         };
         fetch();
-    }, [userId, year]);
+    }, [year, today]);
 
     if (loading) return <ActivityIndicator style={{ marginTop: 48 }} />;
 
