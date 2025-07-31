@@ -10,11 +10,11 @@ export type LocationPreview = {
 
 export function mapServerTagToLocationPreview(tag: any): LocationPreview {
     return {
-        displayName: tag.display_name,
+        displayName: tag.displayName,
         latitude: tag.latitude,
         longitude: tag.longitude,
-        customTag: tag.custom_tag,
-        isCustom: tag.is_custom,
+        customTag: tag.customTag,
+        isCustom: tag.isCustom,
     };
 }
 

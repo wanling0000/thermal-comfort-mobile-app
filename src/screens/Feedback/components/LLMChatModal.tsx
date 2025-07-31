@@ -22,7 +22,7 @@ export default function LLMChatModal({ visible, date, onDismiss }: Props) {
 
         let timeout = setTimeout(() => {
             setErrorShown(true);
-        }, 3000); // ⏱️ 等待 3 秒后才允许显示错误
+        }, 3000); // 等待 3 秒后才允许显示错误
 
         const fetchAndAsk = async () => {
             try {

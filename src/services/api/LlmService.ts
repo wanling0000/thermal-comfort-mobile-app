@@ -11,60 +11,80 @@ import {
 
 export const LlmService = {
     getMonthlyInsight: async (date: Date): Promise<MonthlyLLMInsightDTO> => {
-        const res = await request<ApiResponse<any>>(
-            `/api/v1/ai/insight/month?date=${date.toISOString().split('T')[0]}`,
-            { method: "GET" }
-        );
+        const formattedDate = date.toISOString().split('T')[0];
+        const url = `/api/v1/ai/insight/month?date=${formattedDate}`;
+
+        // console.log("[🌐 LLM Request URL]", url);
+
+        const res = await request<ApiResponse<any>>(url, { method: "GET" });
 
         const raw = res.data;
+        //
+        // console.log("[📦 LLM Raw Response]", JSON.stringify(raw, null, 2));
 
         // 映射
         const mapped: MonthlyLLMInsightDTO = {
-            startDate: raw.start_date,
-            endDate: raw.end_date,
-            totalFeedbackCount: raw.total_feedback_count,
-            comfortLevelCounts: raw.comfort_level_counts,
-            comfortLevelPercentages: raw.comfort_level_percentages,
+            startDate: raw.startDate,
+            endDate: raw.endDate,
+            totalFeedbackCount: raw.totalFeedbackCount,
+            comfortLevelCounts: raw.comfortLevelCounts,
+            comfortLevelPercentages: raw.comfortLevelPercentages,
 
-            activityDistribution: raw.activity_distribution.map((item: any): ActivityDistributionDTO => ({
-                activityTypeId: item.activity_type_id,
-                count: item.count,
-                percentage: item.percentage,
-            })),
+            activityDistribution: Array.isArray(raw.activityDistribution)
+                ? raw.activityDistribution.map((item: any): ActivityDistributionDTO => ({
+                    activityTypeId: item.activityTypeId,
+                    count: item.count,
+                    percentage: item.percentage,
+                }))
+                : [],
 
-            clothingDistribution: raw.clothing_distribution.map((item: any): ClothingDistributionDTO => ({
-                clothingLevel: item.clothing_level,
-                count: item.count,
-                percentage: item.percentage,
-            })),
+            clothingDistribution: Array.isArray(raw.clothingDistribution)
+                ? raw.clothingDistribution.map((item: any): ClothingDistributionDTO => ({
+                    clothingLevel: item.clothingLevel,
+                    count: item.count,
+                    percentage: item.percentage,
+                }))
+                : [],
 
-            comfortLevelEnvRanges: raw.comfort_level_env_ranges.map((item: any): ComfortLevelEnvironmentRangeDTO => ({
-                comfortLevel: item.comfort_level,
-                minTemp: item.min_temp,
-                maxTemp: item.max_temp,
-                minHumidity: item.min_humidity,
-                maxHumidity: item.max_humidity,
-                sampleCount: item.sample_count,
-            })),
+            comfortLevelEnvRanges: Array.isArray(raw.comfortLevelEnvRanges)
+                ? raw.comfortLevelEnvRanges.map((item: any): ComfortLevelEnvironmentRangeDTO => ({
+                    comfortLevel: item.comfortLevel,
+                    minTemp: item.minTemp,
+                    maxTemp: item.maxTemp,
+                    minHumidity: item.minHumidity,
+                    maxHumidity: item.maxHumidity,
+                    sampleCount: item.sampleCount,
+                }))
+                : [],
 
-            trendComparison: {
-                currentCount: raw.trend_comparison.current_count,
-                currentComfortRatio: raw.trend_comparison.current_comfort_ratio,
-                previousCount: raw.trend_comparison.previous_count,
-                previousComfortRatio: raw.trend_comparison.previous_comfort_ratio,
-                delta: raw.trend_comparison.delta,
-            } as TrendComparisonDTO,
-
-            topLocation: raw.top_location
+            trendComparison: raw.trendComparison
                 ? {
-                    name: raw.top_location.name,
-                    latitude: raw.top_location.latitude,
-                    longitude: raw.top_location.longitude,
-                    comfortStats: raw.top_location.comfort_stats,
-                    totalCount: raw.top_location.total_count,
-                } as TopLocationDTO
+                    currentCount: raw.trendComparison.currentCount,
+                    currentComfortRatio: raw.trendComparison.currentComfortRatio,
+                    previousCount: raw.trendComparison.previousCount,
+                    previousComfortRatio: raw.trendComparison.previousComfortRatio,
+                    delta: raw.trendComparison.delta,
+                }
+                : {
+                    currentCount: 0,
+                    currentComfortRatio: 0,
+                    previousCount: 0,
+                    previousComfortRatio: 0,
+                    delta: 0,
+                },
+
+            topLocation: raw.topLocation
+                ? {
+                    name: raw.topLocation.name,
+                    latitude: raw.topLocation.latitude,
+                    longitude: raw.topLocation.longitude,
+                    comfortStats: raw.topLocation.comfortStats,
+                    totalCount: raw.topLocation.totalCount,
+                }
                 : null,
         };
+        //
+        // console.log("[✅ Mapped Monthly Insight]", JSON.stringify(mapped, null, 2));
 
         return mapped;
     },

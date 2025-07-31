@@ -2,16 +2,17 @@ import React, {useCallback, useEffect, useState} from 'react';
 import { View, StyleSheet } from 'react-native';
 import {Button, FAB} from "react-native-paper";
 import { FeedbackService } from "../../services/api/FeedbackService.ts";
-import FeedbackTimeline from "./components/FeedbackTimeline.tsx";
-import FeedbackFormModal from "./components/FeedbackFormModal.tsx";
-import {BaseFeedbackResponse, FeedbackInput, FeedbackResponse} from '../../types/Feedback.ts';
+import { FeedbackResponse} from '../../types/Feedback.ts';
 import {useLocation} from "../../services/location/useLocation.ts";
 import {assembleEnvironmentalReading} from "../../services/assemble/assembleEnvironmentalReading.ts";
 import {usePrimarySensorSummary} from "../../hooks/usePrimarySensorSummary.ts";
 import MonthPicker from "react-native-month-year-picker";
 import {useFeedbackRefresh} from "../../context/FeedbackRefreshContext.tsx";
-import UpdateFeedbackFormModal from "./components/UpdateFeedbackFormModal.tsx";
 import LLMChatModal from "./components/LLMChatModal.tsx";
+import UpdateFeedbackFormModal from "./components/UpdateFeedbackFormModal.tsx";
+import FeedbackTimeline from "./components/FeedbackTimeline.tsx";
+import FeedbackFormModal from "./components/FeedbackFormModal.tsx";
+
 
 export default function FeedbackScreen() {
 
@@ -42,7 +43,6 @@ export default function FeedbackScreen() {
                 (a, b) => (b as any).timestamp - (a as any).timestamp
             );
             setFeedbackList(sorted);
-            console.log("fetchFeedback:", sorted)
 
         } catch (error) {
             console.error('[🔥 fetchFeedback error]', error);
@@ -119,6 +119,8 @@ export default function FeedbackScreen() {
                 feedback={selectedFeedback}
                 onDismiss={() => setSelectedFeedback(null)}
                 onUpdate={async (updated) => {
+                    console.log("[✏️ Update Feedback Payload]", JSON.stringify(updated, null, 2));
+
                     await FeedbackService.updateFeedback(updated);
                     await fetchFeedback();
                     setSelectedFeedback(null);

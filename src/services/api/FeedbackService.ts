@@ -16,10 +16,11 @@ export const FeedbackService = {
     },
 
     getFeedbackByMonth: async (year: number, month: number): Promise<FeedbackResponse[]> => {
-        const res: ApiResponse<FeedbackResponse[]> = await request(
-            `/api/v1/feedback/by-month?year=${year}&month=${month}`,
-            { method: 'GET' }
-        );
+        const url = `/api/v1/feedback/by-month?year=${year}&month=${month}`;
+
+        const res: ApiResponse<FeedbackResponse[]> = await request(url, {
+            method: 'GET',
+        });
 
         if (!res || !Array.isArray(res.data)) {
             throw new Error('[getFeedbackByMonth] response.data is not an array');
@@ -38,6 +39,8 @@ export const FeedbackService = {
     },
 
     updateFeedback: async (input: FeedbackResponse) => {
+        console.log("[📡 updateFeedback] Input sent to backend:", JSON.stringify(input, null, 2));
+
         return request('/api/v1/feedback/update', {
             method: 'PUT',
             body: JSON.stringify(input),

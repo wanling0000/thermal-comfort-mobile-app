@@ -22,13 +22,14 @@ const comfortColors = {
     null: '#eeeeee',
 };
 
-const comfortEmojis = {
-    [-2]: '🥶',
-    [-1]: '🧊',
-    [0]: '😊',
-    [1]: '🌤️',
-    [2]: '🥵',
-};
+const comfortLegend = [
+    { value: -2, emoji: '🥶', label: 'Too Cold' },
+    { value: -1, emoji: '🧊', label: 'Cold' },
+    { value: 0, emoji: '😊', label: 'Comfortable' },
+    { value: 1, emoji: '🌤️', label: 'Warm' },
+    { value: 2, emoji: '🥵', label: 'Too Hot' },
+];
+
 
 const isLeapYear = (year: number) =>
     (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
@@ -118,6 +119,8 @@ export default function YearlyComfortHeatmap({ data, year }: Props) {
                                     const stat = cell?.stat;
                                     const comfort = stat?.averageComfort ?? null;
                                     const count = stat?.feedbackCount ?? 0;
+                                    const roundedComfort = comfort !== null ? Math.round(comfort) : null;
+                                    const backgroundColor = comfortColors[roundedComfort as keyof typeof comfortColors];
 
                                     return (
                                         <View
@@ -125,8 +128,7 @@ export default function YearlyComfortHeatmap({ data, year }: Props) {
                                             style={{
                                                 width: cellSize,
                                                 height: cellSize,
-                                                backgroundColor:
-                                                    comfortColors[comfort as keyof typeof comfortColors],
+                                                backgroundColor,
                                                 marginBottom: gap,
                                                 borderRadius: 4,
                                                 justifyContent: 'center',
@@ -147,17 +149,16 @@ export default function YearlyComfortHeatmap({ data, year }: Props) {
 
             {/* 图例固定 */}
             <View style={styles.legendContainer}>
-                {[-2, -1, 0, 1, 2].map((val) => (
-                    <View key={val} style={styles.legendItem}>
+                {comfortLegend.map(({ value, emoji, label }) => (
+                    <View key={value} style={styles.legendItem}>
                         <View
                             style={[
                                 styles.legendColor,
-                                { backgroundColor: comfortColors[val as keyof typeof comfortColors] },
+                                { backgroundColor: comfortColors[value as keyof typeof comfortColors] },
                             ]}
                         />
                         <Text style={styles.legendText}>
-                            {comfortEmojis[val as keyof typeof comfortEmojis]}{' '}
-                            {val === 0 ? 'Comfort' : val < 0 ? 'Cold' : 'Hot'}
+                            {emoji} {label}
                         </Text>
                     </View>
                 ))}

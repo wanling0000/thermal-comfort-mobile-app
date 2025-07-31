@@ -13,7 +13,7 @@ export async function callOpenAIWithLimit(prompt: string): Promise<string> {
         throw new Error(`You’ve reached the daily limit of ${DAILY_LIMIT} LLM suggestions.`);
     }
 
-    // 🧠 真正调用 GPT
+    // 真正调用 GPT
     const res = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {

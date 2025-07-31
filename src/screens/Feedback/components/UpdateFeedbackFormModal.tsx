@@ -62,10 +62,15 @@ export default function UpdateFeedbackFormModal({
     const [customTag, setCustomTag] = useState('');
     const [timestamp, setTimestamp] = useState<Date>(new Date());
     const [showDatePicker, setShowDatePicker] = useState(false);
+    const [rawCoordinates, setRawCoordinates] = useState<{ latitude: number; longitude: number } | null>(null);
 
     useEffect(() => {
         if (feedback) {
             console.log('[🧩 Feedback Raw Data]', feedback);
+            console.log('[🧩 Feedback Raw Data]', JSON.stringify(feedback, null, 2));
+            console.log('Coordinates Type:', typeof feedback.raw_coordinates);
+            console.log('Coordinates Value:', feedback.raw_coordinates);
+            console.log('Latitude:', feedback.raw_coordinates?.latitude);
             setComfortLevel(feedback.comfort_level?.toString() ?? '0');
             setAdjustedTemp(feedback.adjusted_temp_level?.toString() ?? null);
             setAdjustedHumid(feedback.adjusted_humid_level?.toString() ?? null);
@@ -73,6 +78,7 @@ export default function UpdateFeedbackFormModal({
             setClothingLevel(feedback.clothing_level ?? '');
             setNotes(feedback.notes ?? '');
             setCustomTag(feedback.custom_tag_name ?? '');
+            setRawCoordinates(feedback.raw_coordinates);
             setTimestamp(new Date(feedback.timestamp));
         }
     }, [feedback]);
@@ -87,7 +93,7 @@ export default function UpdateFeedbackFormModal({
             location_display_name: feedback.location_display_name,
             is_custom_location: feedback.is_custom_location,
             custom_tag_name: customTag || undefined,
-            raw_coordinates: feedback.raw_coordinates,
+            raw_coordinates: rawCoordinates ?? undefined,
             activity_type_id: activity || undefined,
             clothing_level: clothingLevel || undefined,
             adjusted_temp_level: adjustedTemp ? parseInt(adjustedTemp) : undefined,

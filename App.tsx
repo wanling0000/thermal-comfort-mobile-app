@@ -2,7 +2,7 @@ import 'react-native-reanimated';
 import 'react-native-gesture-handler';
 import 'react-native-get-random-values';
 
-import React, {useEffect} from 'react';
+import React from 'react';
 import { enableScreens } from 'react-native-screens';
 enableScreens();
 
@@ -15,6 +15,7 @@ import {setNavigator} from "./src/utils/navigationHelper.ts";
 import {AuthProvider} from "./src/app/AuthContext.tsx";
 import {FeedbackRefreshProvider} from "./src/context/FeedbackRefreshContext.tsx";
 
+import { OPENAI_API_KEY } from '@env';
 
 export default function App() {
 

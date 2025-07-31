@@ -28,7 +28,7 @@ export const AnalyticsService = {
 
         const mapped: ComfortStatisticsDTO = {
             total: raw.total,
-            levelCounts: raw.level_counts,
+            levelCounts: raw.levelCounts,
         };
 
         // console.log("✅ Mapped Data:", mapped);
@@ -45,13 +45,15 @@ export const AnalyticsService = {
         );
 
         const raw = res.data.data;
+        // console.log("✅ Service Raw Data:", raw);
 
         const mapped: DailyComfortStatDTO[] = raw.map((item: any) => ({
             date: item.date,
             averageComfort:
-                typeof item.average_comfort === 'number' ? item.average_comfort : null,
-            feedbackCount: item.feedback_count ?? 0,
+                typeof item.averageComfort === 'number' ? item.averageComfort : null,
+            feedbackCount: item.feedbackCount ?? 0,
         }));
+        // console.log("✅ Mapped Data Sample (含 2025-07-31):", mapped.find(d => d.date === "2025-07-31"));
 
         return mapped;
     },

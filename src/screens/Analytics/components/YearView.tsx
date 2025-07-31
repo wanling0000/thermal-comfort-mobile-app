@@ -21,6 +21,9 @@ export default function YearView() {
                     AnalyticsService.getYearlyStats(year),
                     AnalyticsService.getSummary(today, 'YEAR'),
                 ]);
+
+                const withFeedback = yearData.filter(d => d.feedbackCount > 0);
+
                 setData(yearData);
                 setSummary(summaryRes?.data?.insights ?? []);
             } catch (error) {

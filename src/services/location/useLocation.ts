@@ -14,15 +14,15 @@ export function useLocation(): UseLocationResult {
     const [location, setLocation] = useState<LocationPreview | null>(null);
     const lastLocationRef = useRef<LocationPreview | null>(null);
     const customTagRef = useRef<string | undefined>(undefined);
+    const lastUpdateTimeRef = useRef<number>(0);
+    const cachedTagsRef = useRef<LocationPreview[] | null>(null);
 
     const setCustomTag = useCallback((tag: string | null) => {
         customTagRef.current = tag ?? undefined;
 
-        // 更新已有 location（如果有）
         if (lastLocationRef.current) {
-            const prev = lastLocationRef.current;
-            const updated: LocationPreview = {
-                ...prev,
+            const updated = {
+                ...lastLocationRef.current,
                 customTag: tag ?? undefined,
                 isCustom: !!tag,
             };
@@ -54,34 +54,48 @@ export function useLocation(): UseLocationResult {
 
         async function handlePosition(latitude: number, longitude: number) {
             const prev = lastLocationRef.current;
+            const now = Date.now();
+            const MATCH_DISTANCE_THRESHOLD = 25;
+
+            // 节流：如果位置变化太小，或时间间隔太短，直接跳过
             if (
                 prev &&
-                Math.abs(prev.latitude - latitude) < 0.00001 &&
-                Math.abs(prev.longitude - longitude) < 0.00003 // 0.00001 度 ≈ 1m
+                Math.abs(prev.latitude - latitude) < 0.0001 &&
+                Math.abs(prev.longitude - longitude) < 0.0001 &&
+                now - lastUpdateTimeRef.current < 30000
             ) {
                 return;
             }
 
+            lastUpdateTimeRef.current = now;
 
-            // 获取所有自定义标签
             let matchedTag: LocationPreview | null = null;
-            try {
-                const rawTags = await UserLocationService.getUserLocationPreviews();
 
-                const tags: LocationPreview[] = rawTags.map(mapServerTagToLocationPreview);
-                // 优先使用手动设定的 customTag
-                if (customTagRef.current) {
-                    matchedTag = tags.find(tag => tag.customTag === customTagRef.current) ?? null;
+            try {
+                // 只 fetch 一次 preview，缓存结果
+                if (!cachedTagsRef.current) {
+                    const rawTags = await UserLocationService.getUserLocationPreviews();
+                    const parsed = rawTags.map(mapServerTagToLocationPreview);
+                    cachedTagsRef.current = parsed;
                 }
 
-                // 如果没有手动设定，则自动匹配坐标
-                if (!matchedTag) {
-                    matchedTag = tags.find((tag) => {
-                        const dLat = tag.latitude - latitude;
-                        const dLon = tag.longitude - longitude;
-                        const distance = Math.sqrt(dLat * dLat + dLon * dLon) * 111000;
-                        return distance < 10;
-                    }) ?? null;
+                const tags = cachedTagsRef.current;
+
+                if (tags) {
+                    // 优先使用手动设定的 customTag
+                    if (customTagRef.current) {
+                        matchedTag = tags.find(tag => tag.customTag === customTagRef.current) ?? null;
+                    }
+
+                    // 如果没有手动设定，则自动匹配坐标
+                    if (!matchedTag) {
+                        matchedTag = tags.find((tag) => {
+                            const dLat = tag.latitude - latitude;
+                            const dLon = tag.longitude - longitude;
+                            const distance = Math.sqrt(dLat ** 2 + dLon ** 2) * 111000;
+                            return distance < MATCH_DISTANCE_THRESHOLD;
+                        }) ?? null;
+                    }
                 }
             } catch (e) {
                 console.warn('[useLocation] Failed to fetch user tags', e);
@@ -112,7 +126,6 @@ export function useLocation(): UseLocationResult {
             const hasPermission = await requestLocationPermission();
             if (!hasPermission) return;
 
-            // Fetch current location
             Geolocation.getCurrentPosition(
                 (position) => {
                     const { latitude, longitude } = position.coords;
@@ -124,13 +137,12 @@ export function useLocation(): UseLocationResult {
                 },
                 {
                     enableHighAccuracy: true,
-                    timeout: 15000, // Timeout after 15 seconds
-                    maximumAge: 10000, // Accept cached location up to 10 seconds old
-                    forceRequestLocation: true, // Force fetch a fresh location if possible
+                    timeout: 15000,
+                    maximumAge: 10000,
+                    forceRequestLocation: true,
                 }
             );
 
-            // Start watching location changes
             const watchId = Geolocation.watchPosition(
                 (position) => {
                     const { latitude, longitude } = position.coords;
@@ -149,7 +161,6 @@ export function useLocation(): UseLocationResult {
         }
 
         initLocation();
-
     }, []);
 
     return {

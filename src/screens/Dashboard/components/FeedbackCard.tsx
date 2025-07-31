@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import {Text, IconButton, Chip, Surface, Button, Card} from 'react-native-paper';
+import {Text, IconButton, Chip, Surface, Button, Card, Snackbar} from 'react-native-paper';
 import EditLocationModal from './EditLocationModal';
 import { LocationPreview } from '../../../types/Location';
 import Icon from "@react-native-vector-icons/material-design-icons";
@@ -14,10 +14,12 @@ const FeedbackCard = ({
                           location,
                           onEditLocation,
                           sensor,
+                          onSubmittedFeedback,
                       }: {
     location: LocationPreview;
     onEditLocation: (newTag: string) => void;
     sensor: SensorData | null;
+    onSubmittedFeedback?: () => void;
 }) => {
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedEmoji, setSelectedEmoji] = useState<number | null>(0);
@@ -122,7 +124,7 @@ const FeedbackCard = ({
                                     await FeedbackService.submitFeedbackWithReading(payload);
                                     setSelectedEmoji(null);
                                     triggerRefresh();
-                                    console.log('✅ Feedback with reading submitted');
+                                    onSubmittedFeedback?.();
                                 } catch (err) {
                                     console.error('❌ Submission failed', err);
                                 }

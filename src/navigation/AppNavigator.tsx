@@ -4,7 +4,6 @@ import SettingsScreen from '../screens/Settings/SettingsScreen';
 import DashboardScreen from "../screens/Dashboard/DashboardScreen";
 import FeedbackScreen from "../screens/Feedback/FeedbackScreen";
 import AnalyticsScreen from "../screens/Analytics/AnalyticsScreen";
-import TestScreen from "../screens/Test/TestScreen.tsx";
 
 // run: npx react-native start --port=8088 --reset-cache
 
@@ -17,7 +16,6 @@ export function AppNavigator() {
             <Tab.Screen name="Feedback" component={FeedbackScreen} />
             <Tab.Screen name="Analytics" component={AnalyticsScreen}/>
             <Tab.Screen name="Settings" component={SettingsScreen} />
-            <Tab.Screen name="Test" component={TestScreen} />
         </Tab.Navigator>
     );
 }
