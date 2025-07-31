@@ -28,7 +28,7 @@ export const AnalyticsService = {
 
         const mapped: ComfortStatisticsDTO = {
             total: raw.total,
-            levelCounts: raw.level_counts,  // 👈 你这里必须手动映射成 camelCase！
+            levelCounts: raw.level_counts,
         };
 
         // console.log("✅ Mapped Data:", mapped);

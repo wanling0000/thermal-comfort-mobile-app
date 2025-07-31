@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Button } from "react-native-paper";
+import {Button, FAB} from "react-native-paper";
 import { FeedbackService } from "../../services/api/FeedbackService.ts";
 import FeedbackTimeline from "./components/FeedbackTimeline.tsx";
 import FeedbackFormModal from "./components/FeedbackFormModal.tsx";
@@ -11,6 +11,7 @@ import {usePrimarySensorSummary} from "../../hooks/usePrimarySensorSummary.ts";
 import MonthPicker from "react-native-month-year-picker";
 import {useFeedbackRefresh} from "../../context/FeedbackRefreshContext.tsx";
 import UpdateFeedbackFormModal from "./components/UpdateFeedbackFormModal.tsx";
+import LLMChatModal from "./components/LLMChatModal.tsx";
 
 export default function FeedbackScreen() {
 
@@ -18,6 +19,8 @@ export default function FeedbackScreen() {
     const [feedbackList, setFeedbackList] = useState<FeedbackResponse[]>([]);
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [showPicker, setShowPicker] = useState(false);
+
+    const [chatVisible, setChatVisible] = useState(false);
 
     const { primarySensor } = usePrimarySensorSummary();
     const { location } = useLocation();
@@ -127,6 +130,19 @@ export default function FeedbackScreen() {
                 }}
             />
 
+            <FAB
+                icon="robot"
+                label="AI Insight"
+                style={styles.fab}
+                onPress={() => setChatVisible(true)}
+            />
+
+            <LLMChatModal
+                visible={chatVisible}
+                date={selectedDate}
+                onDismiss={() => setChatVisible(false)}
+            />
+
 
         </View>
     );
@@ -142,4 +158,11 @@ const styles = StyleSheet.create({
     spacer: {
         height: 24,
     },
+    fab: {
+        position: 'absolute',
+        right: 16,
+        bottom: 24,
+    },
 });
+
+
