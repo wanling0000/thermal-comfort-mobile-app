@@ -44,17 +44,15 @@ const DashboardScreen = () => {
                         lastSeen={summary?.lastReadingTime}
                     />
                 </View>
-                {location && (
-                    <>
-                        <FeedbackCard
-                            location={location}
-                            onEditLocation={handleEditLocation}
-                            sensor={primarySensor}
-                            onSubmittedFeedback={() => setFeedbackSnackbarVisible(true)}
-                        />
-                        <ChartCard />
-                    </>
-                )}
+                <FeedbackCard
+                    location={location}
+                    onEditLocation={handleEditLocation}
+                    sensor={primarySensor}
+                    onSubmittedFeedback={() => setFeedbackSnackbarVisible(true)}
+                />
+
+                <ChartCard />
+
             </ScrollView>
             <Snackbar
                 visible={feedbackSnackbarVisible}

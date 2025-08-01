@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import {Text, IconButton, Chip, Surface, Button, Card, Snackbar} from 'react-native-paper';
+import {Text, IconButton, Chip, Surface, Button, Card} from 'react-native-paper';
 import EditLocationModal from './EditLocationModal';
 import { LocationPreview } from '../../../types/Location';
 import Icon from "@react-native-vector-icons/material-design-icons";
@@ -16,7 +16,7 @@ const FeedbackCard = ({
                           sensor,
                           onSubmittedFeedback,
                       }: {
-    location: LocationPreview;
+    location: LocationPreview | null;
     onEditLocation: (newTag: string) => void;
     sensor: SensorData | null;
     onSubmittedFeedback?: () => void;
@@ -32,6 +32,21 @@ const FeedbackCard = ({
         { value: 2, emoji: '🥵', label: 'Too Hot' },
     ];
     const { triggerRefresh } = useFeedbackRefresh();
+
+    if (!location) {
+        return (
+            <Card style={styles.card}>
+                <View style={styles.cardInner}>
+                    <Text variant="titleMedium" style={{ textAlign: 'center', color: '#888' }}>
+                        ⚠️ Location unavailable
+                    </Text>
+                    <Text variant="bodySmall" style={{ textAlign: 'center', marginTop: 8, color: '#888' }}>
+                        Please enable location permission to provide comfort feedback.
+                    </Text>
+                </View>
+            </Card>
+        );
+    }
 
     return (
         <>

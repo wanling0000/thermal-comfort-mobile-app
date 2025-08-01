@@ -72,5 +72,10 @@
 	<false/>
 	<key>CFBundleIconName</key>
 	<string>AppIcon</string>
+	<key>NSLocalNetworkUsageDescription
+NSLocalNetworkUsageDescription
+</key>
+	<string>We need access to the local network to connect to the development server.
+</string>
 </dict>
 </plist>
